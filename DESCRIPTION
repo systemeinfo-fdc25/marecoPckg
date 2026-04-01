@@ -1,0 +1,26 @@
+Package: marecoPckg
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.2.0
+Authors@R: c(
+    person(
+      "Titouan", "LECLERC",
+      email = "systemeinformation@fdc25.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Calcul de l’indicateur IECMAr (Maillet et al., 2017) sur un jeu de donnees de mares
+provenant d'un formulaire dedie. Etape du projet MARECO ("MAres REseaux et COnnectivites"), porte
+ par les FDC de BFC et la FRC BFC.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    dplyr,
+    sf,
+    units,
+    rmapshaper,
+    tidyr
+Depends: 
+    R (>= 3.5)
+RoxygenNote: 7.3.2

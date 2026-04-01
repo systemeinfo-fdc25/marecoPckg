@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.idea$
+^\.env$
+^data-raw$
+^main\.R$
+^output$
