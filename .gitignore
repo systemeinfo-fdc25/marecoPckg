@@ -1,5 +1,6 @@
 output
 .env
-data-raw
+data-raw/mapping
+data-raw/shp
 .idea
 main.R
