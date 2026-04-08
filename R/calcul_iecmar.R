@@ -29,7 +29,7 @@ process_all <- function(df, use_OS_for_reseaux = TRUE, version = 5, departement 
   reseaux <- compute_reseaux_mares(
     df,
     eau = marecoPckg::eau_max1ha[[as.character(departement)]],
-    routes = marecoPckg::routes_RdRn[[as.character(departement)]],
+    routes = marecoPckg::routes_RnAu[[as.character(departement)]],
     lgv = marecoPckg::lgv,
     clc = marecoPckg::clc,
     use_OS = use_OS_for_reseaux
