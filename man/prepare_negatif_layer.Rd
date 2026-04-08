@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_data.R
 \name{prepare_negatif_layer}
 \alias{prepare_negatif_layer}
-\title{Preparation d'une couche lineaire pour decoupage de reseau (utilise dans data-raw)}
+\title{Preparation d'une couche lineaire pour decoupage de reseau (utilise dans data-raw et reseaux (option routes RD))}
 \usage{
 prepare_negatif_layer(layer, buffer, nQuadSegs = 5)
 }

@@ -68,7 +68,7 @@ split_shp_by_departement <- function(shp_path, dep_col) {
 }
 
 
-#' Preparation d'une couche lineaire pour decoupage de reseau (utilise dans data-raw)
+#' Preparation d'une couche lineaire pour decoupage de reseau (utilise dans data-raw et reseaux (option routes RD))
 #'
 #' Transforme une couche lineaire en polygones via l'application de tampons etroits,
 #' afin de permettre le decoupage ulterieur de reseaux polygonaux. Cette fonction est

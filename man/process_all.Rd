@@ -4,18 +4,27 @@
 \alias{process_all}
 \title{Traitement complet des données IECMAR}
 \usage{
-process_all(df, use_OS_for_reseaux = TRUE, version = 5, departement = NULL)
+process_all(
+  df,
+  version = 5,
+  departement = NULL,
+  use_OS_for_reseaux = TRUE,
+  use_RD_for_reseaux = FALSE
+)
 }
 \arguments{
 \item{df}{Un data.frame contenant les données initiales des mares et des réponses.}
-
-\item{use_OS_for_reseaux}{Un booléen indiquant si la couche d'Occupation du Sol (ici, CLC18 lvl1), doit être
-utilisée pour framgmenter les réseaux (default: TRUE).}
 
 \item{version}{Entier correspondant à la version du formulaire kobotoolbox utilisée (default : 5).}
 
 \item{departement}{Entier utilisée pour sélectionner les bons jeux de données pour les traitements
 géométriques (soucis de performances).}
+
+\item{use_OS_for_reseaux}{Un booléen indiquant si la couche d'Occupation du Sol (ici, CLC18 lvl1), doit être
+utilisée pour framgmenter les réseaux (default: TRUE).}
+
+\item{use_RD_for_reseaux}{Un booléen indiquant si les réseaux doivent être fragmentées par la routes départementales
+ou non (dans tous les cas : Type autoroutier, routes nationales, Ligne à Grande Vitesse).}
 }
 \value{
 Un data.frame avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`,

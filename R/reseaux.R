@@ -64,6 +64,7 @@ cut_reseau_by <- function(reseau, by) {
 #' @param clc `sf` ou NULL, couche polygonale d'occupation du sol (optionnel)
 #' @param use_OS Logical, si TRUE et si `clc` est fourni, applique la couche
 #' d'occupation du sol pour fragmenter le réseau (default: TRUE)
+#' @param use_RD Logical, si
 #'
 #' @return Une couche `sf` de polygones représentant les réseaux de mares,
 #' avec les colonnes suivantes :
@@ -83,7 +84,26 @@ cut_reseau_by <- function(reseau, by) {
 #' @importFrom dplyr select group_by slice mutate rename
 #' @importFrom sf st_intersects
 #'
-compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = TRUE) {
+compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = TRUE, use_RD = FALSE) {
+
+  kobo <- kobo %>%
+    # garde seulement les mares existantes (ou sans info)
+    filter(is.na(mare_existe) | mare_existe %in% c('oui', 'peut_etre', 'existe')) %>%
+    # garde seulement les mares < 1ha (ou sans info)
+    filter(
+      is.na(mare_longueur) |
+      is.na(mare_largeur) |
+      (pi/4 * (as.integer(mare_longueur) * as.integer(mare_largeur))) < 10000 # Garde si inf a 1Ha
+    )
+
+  if (use_RD) {
+    routes <- routes %>%
+      prepare_negatif_layer(.03)
+  } else {
+    routes <- routes %>%
+      filter(grepl("Autoroute", cpx_classe) | grepl("Nationale", cpx_classe)) %>% # pour virer RD
+      prepare_negatif_layer(.03)
+  }
 
   tampon_eau <- kobo %>%
     select(X_index) %>%

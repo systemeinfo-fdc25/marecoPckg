@@ -4,7 +4,15 @@
 \alias{compute_reseaux_mares}
 \title{Génération et fragmentation du réseau de mares}
 \usage{
-compute_reseaux_mares(kobo, eau, routes, lgv, clc = NULL, use_OS = TRUE)
+compute_reseaux_mares(
+  kobo,
+  eau,
+  routes,
+  lgv,
+  clc = NULL,
+  use_OS = TRUE,
+  use_RD = FALSE
+)
 }
 \arguments{
 \item{kobo}{`sf`, couche de points représentant les mares}
@@ -19,6 +27,8 @@ compute_reseaux_mares(kobo, eau, routes, lgv, clc = NULL, use_OS = TRUE)
 
 \item{use_OS}{Logical, si TRUE et si `clc` est fourni, applique la couche
 d'occupation du sol pour fragmenter le réseau (default: TRUE)}
+
+\item{use_RD}{Logical, si}
 }
 \value{
 Une couche `sf` de polygones représentant les réseaux de mares,

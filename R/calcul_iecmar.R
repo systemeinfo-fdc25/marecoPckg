@@ -9,18 +9,20 @@
 #' Elle prépare un tableau final avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`.
 #'
 #' @param df Un data.frame contenant les données initiales des mares et des réponses.
-#' @param use_OS_for_reseaux Un booléen indiquant si la couche d'Occupation du Sol (ici, CLC18 lvl1), doit être
-#' utilisée pour framgmenter les réseaux (default: TRUE).
 #' @param version Entier correspondant à la version du formulaire kobotoolbox utilisée (default : 5).
 #' @param departement Entier utilisée pour sélectionner les bons jeux de données pour les traitements
 #' géométriques (soucis de performances).
+#' @param use_OS_for_reseaux Un booléen indiquant si la couche d'Occupation du Sol (ici, CLC18 lvl1), doit être
+#' utilisée pour framgmenter les réseaux (default: TRUE).
+#' @param use_RD_for_reseaux Un booléen indiquant si les réseaux doivent être fragmentées par la routes départementales
+#' ou non (dans tous les cas : Type autoroutier, routes nationales, Ligne à Grande Vitesse).
 #'
 #' @return Un data.frame avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`,
 #'         prêt à être utilisé pour les analyses IECMAR.
 #'
 #' @importFrom dplyr bind_rows mutate select
 #'
-process_all <- function(df, use_OS_for_reseaux = TRUE, version = 5, departement = NULL) {
+process_all <- function(df, version = 5, departement = NULL, use_OS_for_reseaux = TRUE, use_RD_for_reseaux = FALSE) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
 
@@ -32,7 +34,8 @@ process_all <- function(df, use_OS_for_reseaux = TRUE, version = 5, departement 
     routes = marecoPckg::routes_RnAu[[as.character(departement)]],
     lgv = marecoPckg::lgv,
     clc = marecoPckg::clc,
-    use_OS = use_OS_for_reseaux
+    use_OS = use_OS_for_reseaux,
+    use_RD = use_RD_for_reseaux
   )
   res_reseaux <- assign_id_reseau_to_mares(df, reseaux)
 
