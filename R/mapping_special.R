@@ -245,3 +245,39 @@ turbidite_if_no_water <- function(canonique) {
 
   return(res)
 }
+
+#' Ajouter une valeur par défaut pour le corridor écologique (C14) - V4 uniquement
+#'
+#' Ajoute, pour chaque mare, une valeur par défaut indiquant un corridor
+#' écologique altéré lorsque l'information n'est pas renseignée dans la V4.
+#'
+#' @param canonique `data.frame`, jeu de données canonisé contenant au moins
+#' la colonne `X_index`
+#'
+#' @return Un `data.frame` enrichi avec une ligne par mare :
+#' \describe{
+#'   \item{CAN_name}{"corridor_lineaire_5m"}
+#'   \item{CAN_choice}{"corridor_altere"}
+#'   \item{cor_iecmar}{Code IECMAR C14 (41)}
+#' }
+#'
+#' @details
+#' Cette fonction ajoute systématiquement une valeur par défaut pour le corridor
+#' écologique. Elle peut être utilisée lorsque cette information est absente
+#' du jeu de données initial.
+#'
+#' @importFrom dplyr select distinct mutate bind_rows
+default_corridor_v4 <- function(canonique) {
+  c14 <- canonique %>%
+    select(X_index) %>%
+    distinct(X_index) %>%
+    mutate(
+      CAN_name = "corridor_lineaire_5m",
+      CAN_choice = "corridor_altere",
+      cor_iecmar = as.character(41)
+    )
+
+  res <- bind_rows(canonique, c14)
+
+  return(res)
+}

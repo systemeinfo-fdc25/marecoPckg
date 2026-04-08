@@ -269,11 +269,12 @@ calculs_particuliers <- function(canonique, version) {
     res_d   <- calculs_dechets(res_tinw)
     res_t   <- calculs_habitats_v4(res_d)
     res_p   <- defaut_proprietaire_favorable_v4(res_t)
+    res_c   <- default_corridor_v4(res_p)
   } else {
-    res_p   <- res_tinw
+    res_c   <- res_tinw
   }
 
-  res <- res_p %>%
+  res <- res_c %>%
     mutate(X_index = as.integer(X_index))
 
   return(res)
