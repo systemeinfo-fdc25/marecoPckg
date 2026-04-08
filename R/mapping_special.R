@@ -205,3 +205,7 @@ calculs_habitats_v4 <- function(canonique) {
 
   return(res)
 }
+
+turbidite_if_no_water <- function(canonique) {
+
+}

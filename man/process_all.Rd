@@ -9,7 +9,7 @@ process_all(df, use_OS_for_reseaux = TRUE, version = 5, departement = NULL)
 \arguments{
 \item{df}{Un data.frame contenant les données initiales des mares et des réponses.}
 
-\item{use_OS_for_reseaux}{Un booléen indiquant si la couche d'occupation du sol (default: CLC18 lvl1), doit être
+\item{use_OS_for_reseaux}{Un booléen indiquant si la couche d'Occupation du Sol (ici, CLC18 lvl1), doit être
 utilisée pour framgmenter les réseaux (default: TRUE).}
 
 \item{version}{Entier correspondant à la version du formulaire kobotoolbox utilisée (default : 5).}

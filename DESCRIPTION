@@ -9,9 +9,7 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Calcul de l’indicateur IECMAr (Maillet et al., 2017) sur un jeu de donnees de mares
-provenant d'un formulaire dedie. Etape du projet MARECO ("MAres REseaux et COnnectivites"), porte
- par les FDC de BFC et la FRC BFC.
+Description: Calcul de l’indicateur IECMAr (Maillet et al., 2017) sur un jeu de donnees de mares provenant d'un formulaire dedie. Etape du projet MARECO ("MAres REseaux et COnnectivites"), porte par les FDC de BFC et la FRC BFC.
 License: file LICENSE
 Encoding: UTF-8
 LazyData: true

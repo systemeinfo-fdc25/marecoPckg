@@ -47,7 +47,7 @@ process_all <- function(df, use_OS_for_reseaux = TRUE, version = 5, departement 
 
   message("### Correspondances des reponses kobo <-> iecmar")
   kobo_l <- kobo_wide_to_long(df)
-  canonique <- process_kobo_canonised(kobo_l, corresp_v4, canonique) # fait les jointures kobo -> canonique -> iecmar
+  canonique <- process_kobo_canonised(kobo_l, corresp_v4, cor_canonique) # fait les jointures kobo -> canonique -> iecmar
   res_forms <- calculs_particuliers(canonique, version) # genre la surface ellipsoidale...
 
   message("### Compilation des traitements")

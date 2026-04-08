@@ -212,17 +212,17 @@ defaut_proprietaire_favorable_v4 <- function(df) {
 #'
 #' @param kobo `data.frame`, données Kobo au format long
 #' @param cor `data.frame`, table de correspondance
-#' @param canonique `data.frame`, table canonique
+#' @param cor_canonique `data.frame`, table canonique
 #'
 #' @return Un `data.frame` final prêt à être exploité
 #'
-process_kobo_canonised <- function(kobo, cor, canonique) {
+process_kobo_canonised <- function(kobo, cor, cor_canonique) {
 
-  q_multi_r_multi <- join_q_multi_r_multi(kobo, cor, canonique)
+  q_multi_r_multi <- join_q_multi_r_multi(kobo, cor, cor_canonique)
 
-  q_multi_r_uni_before <- prepare_q_multi_r_uni(kobo, cor, canonique)
+  q_multi_r_uni_before <- prepare_q_multi_r_uni(kobo, cor, cor_canonique)
 
-  q_uni <- compute_q_uni(q_multi_r_uni_before, cor, canonique)
+  q_uni <- compute_q_uni(q_multi_r_uni_before, cor, cor_canonique)
 
   q_multi_r_uni <- finalize_q_multi_r_uni(q_multi_r_uni_before, q_uni)
 
@@ -234,8 +234,34 @@ process_kobo_canonised <- function(kobo, cor, canonique) {
   return(res)
 }
 
-calculs_particuliers <- function(canoique, version) {
-  res_s <- calculs_superficie(canoique)
+#' Calculs particuliers IECMAR (superficie, végétation, déchets, habitats)
+#'
+#' Enchaîne une série de traitements spécifiques sur les données canonisées
+#' d’observations de mares pour calculer différents indicateurs IECMAR.
+#'
+#' @param canonique `data.frame`, jeu de données canonisé contenant les colonnes
+#' nécessaires aux fonctions internes (X_index, CAN_name, CAN_choice, etc.)
+#' @param version `integer`, version du calcul (par ex. 4 pour inclure déchets,
+#' habitats et mesures de protection)
+#'
+#' @return Un `data.frame` enrichi avec les résultats des calculs :
+#' \describe{
+#'   \item{Superficie}{via \code{\link{calculs_superficie}}}
+#'   \item{Helophytes}{via \code{\link{calculs_helophytes}}}
+#'   \item{Hydrophytes}{via \code{\link{calculs_hydrophytes}}}
+#'   \item{Déchets et pollution}{si \code{version = 4}, via \code{\link{calculs_dechets}}}
+#'   \item{Habitats}{si \code{version = 4}, via \code{\link{calculs_habitats_v4}}}
+#'   \item{Mesures de protection}{si \code{version = 4}, via \code{\link{defaut_proprietaire_favorable_v4}}}
+#' }
+#'
+#' @details
+#' La fonction applique successivement les fonctions internes pour produire un
+#' jeu de données final prêt pour l’analyse IECMAR.
+#'
+#' @importFrom dplyr mutate
+#'
+calculs_particuliers <- function(canonique, version) {
+  res_s <- calculs_superficie(canonique)
   res_h <- calculs_helophytes(res_s)
   res_h2 <- calculs_hydrophytes(res_h)
   if (version == 4) {
