@@ -206,6 +206,42 @@ calculs_habitats_v4 <- function(canonique) {
   return(res)
 }
 
+#' Compléter la turbidité en absence de donnée (C11)
+#'
+#' Assure qu’une information de turbidité est présente pour chaque mare.
+#' Si aucune valeur n’est renseignée (absence d’eau ou donnée manquante),
+#' une valeur par défaut est attribuée avec le code IECMAR correspondant.
+#'
+#' @param canonique `data.frame`, jeu de données canonisé contenant au moins
+#' les colonnes `X_index`, `colname`, `CAN_name`, `CAN_choice`, `id_can`,
+#' et `cor_iecmar`
+#'
+#' @return Un `data.frame` où les lignes liées à la turbidité sont complétées :
+#' \describe{
+#'   \item{CAN_name}{"turbidite" si absent}
+#'   \item{CAN_choice}{"Inconnu" si valeur manquante}
+#'   \item{cor_iecmar}{Code IECMAR 11 si valeur manquante}
+#' }
+#'
+#' @details
+#' La détection des valeurs manquantes se fait via `id_can`.
+#' Si celui-ci est `NA`, la turbidité est considérée comme non renseignée
+#' et une valeur par défaut est attribuée.
+#'
+#' @importFrom dplyr filter group_by mutate select bind_rows
+#'
 turbidite_if_no_water <- function(canonique) {
+  res_code <- canonique %>%
+    filter(colname == "turbidite") %>% # Usage du colname et non du CAN_name car si turbidite = NULL, le CAN_name est NA
+    group_by(X_index) %>%
+    mutate(CAN_name = ifelse(is.na(id_can), "turbidite", CAN_name)) %>%
+    mutate(CAN_choice = ifelse(is.na(id_can), "Inconnu", CAN_choice)) %>%
+    mutate(cor_iecmar = ifelse(is.na(id_can), as.character(11), cor_iecmar)) %>%
+    select(X_index, CAN_name, CAN_choice, cor_iecmar)
 
+  res <- canonique %>%
+    filter(colname != "turbidite") %>%
+    bind_rows(res_code)
+
+  return(res)
 }

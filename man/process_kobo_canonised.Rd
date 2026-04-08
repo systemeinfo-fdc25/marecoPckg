@@ -4,14 +4,14 @@
 \alias{process_kobo_canonised}
 \title{Pipeline de canonisation des données Kobo}
 \usage{
-process_kobo_canonised(kobo, cor, canonique)
+process_kobo_canonised(kobo, cor, cor_canonique)
 }
 \arguments{
 \item{kobo}{`data.frame`, données Kobo au format long}
 
 \item{cor}{`data.frame`, table de correspondance}
 
-\item{canonique}{`data.frame`, table canonique}
+\item{cor_canonique}{`data.frame`, table canonique}
 }
 \value{
 Un `data.frame` final prêt à être exploité

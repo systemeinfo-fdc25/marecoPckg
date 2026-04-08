@@ -261,15 +261,16 @@ process_kobo_canonised <- function(kobo, cor, cor_canonique) {
 #' @importFrom dplyr mutate
 #'
 calculs_particuliers <- function(canonique, version) {
-  res_s <- calculs_superficie(canonique)
-  res_h <- calculs_helophytes(res_s)
-  res_h2 <- calculs_hydrophytes(res_h)
+  res_s     <- calculs_superficie(canonique)
+  res_h     <- calculs_helophytes(res_s)
+  res_h2    <- calculs_hydrophytes(res_h)
+  res_tinw  <- turbidite_if_no_water(res_h2)
   if (version == 4) {
-    res_d <- calculs_dechets(res_h2)
-    res_t <- calculs_habitats_v4(res_d)
-    res_p <- defaut_proprietaire_favorable_v4(res_t)
+    res_d   <- calculs_dechets(res_tinw)
+    res_t   <- calculs_habitats_v4(res_d)
+    res_p   <- defaut_proprietaire_favorable_v4(res_t)
   } else {
-    res_p <- res_h2
+    res_p   <- res_tinw
   }
 
   res <- res_p %>%
