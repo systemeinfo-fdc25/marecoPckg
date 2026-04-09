@@ -22,6 +22,7 @@
 #'
 #' @importFrom dplyr bind_rows mutate select
 #'
+#' @export
 process_all <- function(df, version = 5, departement = NULL, use_OS_for_reseaux = TRUE, use_RD_for_reseaux = FALSE) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
