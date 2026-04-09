@@ -11,7 +11,8 @@ compute_reseaux_mares(
   lgv,
   clc = NULL,
   use_OS = TRUE,
-  use_RD = FALSE
+  use_RD = FALSE,
+  buffer_size
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ compute_reseaux_mares(
 d'occupation du sol pour fragmenter le réseau (default: TRUE)}
 
 \item{use_RD}{Logical, si}
+
+\item{buffer_size_for_reseaux}{Numeric, distance en metres appliquee comme tampon autour des pièces d'eau
+(mares + plans d'eau) pour calculer les connexions au sein d'un réseau (default: 1000).}
 }
 \value{
 Une couche `sf` de polygones représentant les réseaux de mares,

@@ -16,6 +16,9 @@
 #' utilisée pour framgmenter les réseaux (default: TRUE).
 #' @param use_RD_for_reseaux Un booléen indiquant si les réseaux doivent être fragmentées par la routes départementales
 #' ou non (dans tous les cas : Type autoroutier, routes nationales, Ligne à Grande Vitesse).
+#' @param buffer_size_for_reseaux Numeric, distance en metres appliquee comme tampon autour des pièces d'eau
+#' (mares + plans d'eau) pour calculer les connexions au sein d'un réseau (default: 1000).
+#' réseaux.
 #'
 #' @return Un data.frame avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`,
 #'         prêt à être utilisé pour les analyses IECMAR.
@@ -23,7 +26,10 @@
 #' @importFrom dplyr bind_rows mutate select
 #'
 #' @export
-process_all <- function(df, version = 5, departement = NULL, use_OS_for_reseaux = TRUE, use_RD_for_reseaux = FALSE) {
+process_all <- function(df, version = 5, departement = NULL,
+                        use_OS_for_reseaux = TRUE, use_RD_for_reseaux = FALSE,
+                        buffer_size_for_reseaux
+) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
 
@@ -36,7 +42,8 @@ process_all <- function(df, version = 5, departement = NULL, use_OS_for_reseaux 
     lgv = marecoPckg::lgv,
     clc = marecoPckg::clc,
     use_OS = use_OS_for_reseaux,
-    use_RD = use_RD_for_reseaux
+    use_RD = use_RD_for_reseaux,
+    buffer_size = buffer_size_for_reseaux
   )
   res_reseaux <- assign_id_reseau_to_mares(df, reseaux)
 

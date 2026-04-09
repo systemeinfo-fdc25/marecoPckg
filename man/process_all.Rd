@@ -9,7 +9,8 @@ process_all(
   version = 5,
   departement = NULL,
   use_OS_for_reseaux = TRUE,
-  use_RD_for_reseaux = FALSE
+  use_RD_for_reseaux = FALSE,
+  buffer_size_for_reseaux
 )
 }
 \arguments{
@@ -25,6 +26,10 @@ utilisée pour framgmenter les réseaux (default: TRUE).}
 
 \item{use_RD_for_reseaux}{Un booléen indiquant si les réseaux doivent être fragmentées par la routes départementales
 ou non (dans tous les cas : Type autoroutier, routes nationales, Ligne à Grande Vitesse).}
+
+\item{buffer_size_for_reseaux}{Numeric, distance en metres appliquee comme tampon autour des pièces d'eau
+(mares + plans d'eau) pour calculer les connexions au sein d'un réseau (default: 1000).
+réseaux.}
 }
 \value{
 Un data.frame avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`,

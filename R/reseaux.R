@@ -65,6 +65,8 @@ cut_reseau_by <- function(reseau, by) {
 #' @param use_OS Logical, si TRUE et si `clc` est fourni, applique la couche
 #' d'occupation du sol pour fragmenter le réseau (default: TRUE)
 #' @param use_RD Logical, si
+#' @param buffer_size_for_reseaux Numeric, distance en metres appliquee comme tampon autour des pièces d'eau
+#' (mares + plans d'eau) pour calculer les connexions au sein d'un réseau (default: 1000).
 #'
 #' @return Une couche `sf` de polygones représentant les réseaux de mares,
 #' avec les colonnes suivantes :
@@ -84,7 +86,7 @@ cut_reseau_by <- function(reseau, by) {
 #' @importFrom dplyr select group_by slice mutate rename
 #' @importFrom sf st_intersects
 #'
-compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = TRUE, use_RD = FALSE) {
+compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = TRUE, use_RD = FALSE, buffer_size) {
 
   kobo <- kobo %>%
     # garde seulement les mares existantes (ou sans info)
@@ -107,7 +109,7 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
 
   tampon_eau <- kobo %>%
     select(X_index) %>%
-    create_raw_reseau(., eau)
+    create_raw_reseau(., eau, buffer = buffer_size)
 
   mares_sans_doublons <- kobo %>%
     group_by(geometry) %>%
