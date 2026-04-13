@@ -183,3 +183,62 @@ calcul_mediane_iecmar_reseaux <- function(df) {
            position_mediane = ifelse(note < median_iecmar_reseau, "en dessous", "au dessus")
     )
 }
+
+#' Build GeoPackage filename from processing parameters
+#'
+#' Constructs a standardized GeoPackage (.gpkg) file name based on
+#' the parameters used in the `process_all()` workflow. This ensures
+#' reproducible and traceable output file naming.
+#'
+#' @param version Integer. Processing version used in `process_all()`.
+#' @param departement Integer or character. Department identifier.
+#' @param use_OS_for_reseaux Logical. Whether OS networks are used.
+#' @param use_RD_for_reseaux Logical. Whether RD networks are used.
+#' @param buffer_size_for_reseaux Numeric. Buffer size used for networks (in meters).
+#' @param prefix Character. File name prefix. Default is `"resultats"`.
+#' @param dir Character. Output directory path. Default is `"./output"`.
+#'
+#' @return Character string. Full path to the generated GeoPackage file.
+#'
+#' @details
+#' The file name is constructed using a standardized pattern:
+#' `prefix_v{version}_{departement}_{OS/RD flags}_{buffer}m.gpkg`.
+#'
+#' OS and RD flags are encoded as:
+#' \itemize{
+#'   \item `"OS"` / `"noOS"` depending on `use_OS_for_reseaux`
+#'   \item `"RD"` / `"noRD"` depending on `use_RD_for_reseaux`
+#' }
+#'
+#' This function does not check file existence or create directories.
+#'
+#' @examples
+#' build_gpkg_name(
+#'   version = 4,
+#'   departement = 25,
+#'   use_OS_for_reseaux = FALSE,
+#'   use_RD_for_reseaux = FALSE,
+#'   buffer_size_for_reseaux = 750
+#' )
+#'
+#' @export
+build_gpkg_name <- function(version,
+                            departement,
+                            use_OS_for_reseaux,
+                            use_RD_for_reseaux,
+                            buffer_size_for_reseaux,
+                            prefix = "resultats",
+                            dir = "./output") {
+
+  os <- ifelse(use_OS_for_reseaux, "OS", "noOS")
+  rd <- ifelse(use_RD_for_reseaux, "RD", "noRD")
+
+  file_name <- paste0(
+    prefix, "_v", version, "_",
+    departement, "_",
+    os, "_", rd, "_",
+    buffer_size_for_reseaux, "m.gpkg"
+  )
+
+  file.path(dir, file_name)
+}
