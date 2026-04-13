@@ -8,12 +8,12 @@ calcul_mediane_iecmar_reseaux(df)
 }
 \arguments{
 \item{df}{`data.frame`, contenant au moins les colonnes :
-\code{id_reseau}, \code{note_raw}, \code{note_pondere}}
+\code{id_reseau}, \code{note}}
 }
 \value{
 Un `data.frame` enrichi avec :
 \describe{
-  \item{median_iecmar_reseau_raw}{Médiane des notes brutes par réseau}
+  \item{median_iecmar_reseau}{Médiane des notes brutes par réseau}
   \item{median_iecmar_reseau_pon}{Médiane des notes pondérées par réseau}
   \item{position_mediane}{Indique si la note est au-dessus ou en dessous de la médiane}
 }

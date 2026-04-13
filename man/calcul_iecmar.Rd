@@ -10,7 +10,7 @@ calcul_iecmar(df)
 \item{df}{Un data.frame contenant au minimum les colonnes `X_index` et `cor_iecmar`.}
 }
 \value{
-Un data.frame enrichi avec les colonnes `points`, `n`, `note_raw` et `note_pondere`.
+Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
 }
 \description{
 Calcule les notes IECMAR à partir d’un jeu de données de réponses.

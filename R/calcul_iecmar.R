@@ -96,7 +96,7 @@ process_all <- function(df, version = 5, departement = NULL,
 #'
 #' @param df Un data.frame contenant au minimum les colonnes `X_index` et `cor_iecmar`.
 #'
-#' @return Un data.frame enrichi avec les colonnes `points`, `n`, `note_raw` et `note_pondere`.
+#' @return Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
 #'
 #' @importFrom dplyr mutate left_join group_by
 #'
@@ -108,8 +108,7 @@ calcul_iecmar <- function(df) {
   res <- ajustements_doublons(df_with_pts) %>%
     group_by(X_index) %>%
     mutate(n_critere = sum(!is.na(cor_iecmar)),
-           note_raw = sum(points, na.rm = T),
-           note_pondere = note_raw*20/n_critere)
+           note = sum(points, na.rm = T))
 
   return(res)
 }
@@ -145,16 +144,16 @@ ajustements_doublons <- function(df) {
 #' uniquement la première ligne pour chaque mare (`X_index`).
 #'
 #' @param df `data.frame`, contenant au moins les colonnes :
-#' \code{X_index}, \code{n_critere}, \code{note_raw}, \code{note_pondere}
+#' \code{X_index}, \code{n_critere}, \code{note}
 #'
 #' @return Un `data.frame` réduit à une ligne par mare avec les colonnes :
-#' \code{X_index}, \code{n_critere}, \code{note_raw}, \code{note_pondere}
+#' \code{X_index}, \code{n_critere}, \code{note}
 #'
 #' @importFrom dplyr select group_by slice
 #'
 output_note_only_l <- function(df) {
   res <- df %>%
-    select(X_index, n_critere, note_raw, note_pondere) %>%
+    select(X_index, n_critere, note) %>%
     group_by(X_index) %>%
     slice(1)
 }
@@ -166,11 +165,11 @@ output_note_only_l <- function(df) {
 #' par rapport à cette médiane.
 #'
 #' @param df `data.frame`, contenant au moins les colonnes :
-#' \code{id_reseau}, \code{note_raw}, \code{note_pondere}
+#' \code{id_reseau}, \code{note}
 #'
 #' @return Un `data.frame` enrichi avec :
 #' \describe{
-#'   \item{median_iecmar_reseau_raw}{Médiane des notes brutes par réseau}
+#'   \item{median_iecmar_reseau}{Médiane des notes brutes par réseau}
 #'   \item{median_iecmar_reseau_pon}{Médiane des notes pondérées par réseau}
 #'   \item{position_mediane}{Indique si la note est au-dessus ou en dessous de la médiane}
 #' }
@@ -180,8 +179,7 @@ output_note_only_l <- function(df) {
 calcul_mediane_iecmar_reseaux <- function(df) {
   res <- df %>%
     group_by(id_reseau) %>%
-    mutate(median_iecmar_reseau_raw = median(note_raw),
-           median_iecmar_reseau_pon = median(note_pondere),
-           position_mediane = ifelse(note_raw < median_iecmar_reseau_raw, "en dessous", "au dessus")
+    mutate(median_iecmar_reseau = median(note),
+           position_mediane = ifelse(note < median_iecmar_reseau, "en dessous", "au dessus")
     )
 }
