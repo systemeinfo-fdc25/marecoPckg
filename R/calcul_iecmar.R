@@ -74,7 +74,7 @@ process_all <- function(df, version = 5, departement = NULL,
   res_sf <- left_join(res_reseaux, note_simple_long, by = "X_index") %>%
     calcul_mediane_iecmar_reseaux()
 
-  res_sf_enhanced <- left_join(res_sf, df %>% select(X_index, photographie_URL) %>% st_drop_geometry(), by = "X_index")
+  res_sf_enhanced <- left_join(res_sf, df %>% select(X_index, photographie_URL, mare_existe) %>% st_drop_geometry(), by = "X_index")
 
   message("Creation des outputs")
   res <- list(
