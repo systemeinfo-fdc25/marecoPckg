@@ -58,7 +58,12 @@ process_all <- function(df, version = 5, departement = NULL,
 
   message("### Correspondances des reponses kobo <-> iecmar")
   kobo_l <- kobo_wide_to_long(df)
-  canonique <- process_kobo_canonised(kobo_l, corresp_v4, cor_canonique) # fait les jointures kobo -> canonique -> iecmar
+  # fait les jointures kobo -> canonique -> iecmar
+  if (version == 4) {
+    canonique <- process_kobo_canonised(kobo_l, corresp_v4, cor_canonique)
+  } else if (version == 5) {
+    canonique <- process_kobo_canonised(kobo_l, corresp_v5, cor_canonique)
+  }
   res_forms <- calculs_particuliers(canonique, version) # genre la surface ellipsoidale...
 
   message("### Compilation des traitements")
