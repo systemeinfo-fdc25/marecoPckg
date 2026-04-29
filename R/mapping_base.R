@@ -47,6 +47,7 @@ join_q_multi_r_multi <- function(kobo, cor, canonique) {
     mutate(value = ifelse(value == 1, sub(".*\\.", "", .$colname), as.integer(0)),
            colname = sub("\\..*", "", colname)) %>%
     filter(value != 0) %>%
+    mutate(value = as.character(value)) %>%
     left_join(cor, by = c("colname" = "name_survey",  "value" = "name_choice")) %>%
     left_join(canonique, by = c("id_can" = "CAN_id"))
 
