@@ -88,9 +88,9 @@ process_all <- function(df, version = 5, departement = NULL,
 
   message("Creation des outputs")
   res <- list(
-    resultat = res_sf,
-    resultat_photo = res_sf_enhanced,
-    notes_details = notes_detail,
+    resultat = res_sf %>% rename(`_index_kobo` = "X_index"),
+    resultat_photo = res_sf_enhanced %>% rename(`_index_kobo` = "X_index"),
+    notes_details = notes_detail %>% rename(`_index_kobo` = "X_index"),
     reseaux = reseaux
   )
 
