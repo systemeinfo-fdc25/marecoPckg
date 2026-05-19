@@ -14,7 +14,6 @@ Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
 }
 \description{
 Calcule les notes IECMAR à partir d’un jeu de données de réponses.
-La fonction joint les points associés, applique un traitement des doublons
-(en conservant la pire note par critère), puis calcule une note brute et
-une note pondérée sur 20 par individu (`X_index`).
+La fonction joint les points associés, applique un traitement des doublons,
+puis calcule une note brute et une note pondérée sur 20 par individu (`X_index`).
 }
