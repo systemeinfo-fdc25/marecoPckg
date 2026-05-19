@@ -82,7 +82,7 @@ process_all <- function(df, version = 5, departement = NULL,
     calcul_mediane_iecmar_reseaux()
 
   res_sf_enhanced <- left_join(res_sf, df_existe %>%
-                                          select(X_index, photographie_URL, mare_existe) %>%
+                                          select(X_index, photographie_URL) %>%
                                           st_drop_geometry(),
                                by = "X_index")
 
