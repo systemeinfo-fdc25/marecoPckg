@@ -171,7 +171,9 @@ calculs_dechets_v4 <- function(cano) {
 calculs_dechets_v5 <- function(cano) {
 
   filtred <- cano %>%
-      filter(CAN_name %in% c("dechets", "quantite_dechets")) %>%
+      # Magouille pour gerer le quantite_dechet qui galere dans les joins car il est souvent en NA
+      filter(colname %in% c("dechets", "quantite_dechets")) %>%
+      mutate(CAN_name = ifelse(colname == "quantite_dechets", "quantite_dechets", CAN_name)) %>%
       select(X_index, CAN_name, CAN_choice)
 
   dechets <- filtred %>%
