@@ -188,7 +188,7 @@ output_note_only_l <- function(df) {
 calcul_mediane_iecmar_reseaux <- function(df) {
   res <- df %>%
     group_by(id_reseau) %>%
-    mutate(median_iecmar_reseau = median(note),
+    mutate(median_iecmar_reseau = as.integer(median(note)),
            position_mediane = ifelse(note < median_iecmar_reseau, "en dessous", "au dessus")
     )
 }
