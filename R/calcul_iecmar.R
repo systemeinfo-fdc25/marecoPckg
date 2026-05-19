@@ -32,6 +32,9 @@ process_all <- function(df, version = 5, departement = NULL,
 ) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
+  df_existe <- df %>%
+    filter(mare_existe == "existe")
+
   message("### Creation des reseaux")
 
   reseaux <- compute_reseaux_mares(
