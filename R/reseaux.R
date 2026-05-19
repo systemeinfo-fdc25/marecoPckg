@@ -107,9 +107,11 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
       prepare_negatif_layer(.03)
   }
 
+  eau_clean <- prepare_data_hydro(kobo, eau)
+
   tampon_eau <- kobo %>%
     select(X_index) %>%
-    create_raw_reseau(., eau, buffer = buffer_size)
+    create_raw_reseau(., eau_clean, buffer = buffer_size)
 
   mares_sans_doublons <- kobo %>%
     group_by(geometry) %>%
@@ -124,7 +126,7 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
 
   res <- res %>%
     mutate(nb_mares_reseau = lengths(st_intersects(., mares_sans_doublons))) %>%
-    mutate(nb_eau_reseau = lengths(st_intersects(., eau))) %>%
+    mutate(nb_eau_reseau = lengths(st_intersects(., eau_clean))) %>%
     mutate(reseau_valide = ifelse(
       (nb_mares_reseau + nb_eau_reseau >= 5) & (nb_mares_reseau >= 3),
       TRUE,
