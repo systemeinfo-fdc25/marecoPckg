@@ -376,7 +376,6 @@ iecmar_c13 <- function(kobo, site_hiver) {
     select(X_index, CAN_name, CAN_choice, cor_iecmar)
 
   return(res)
-
 }
 
 #' Zone d’écrasement d’Amphibiens (C15) : Calcul de la distance aux routes

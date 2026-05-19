@@ -123,7 +123,6 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
   }
 
   res <- res %>%
-    # Actuellement, compte seulement les mares. Ajouter un comptage pour les plans d'eau ?
     mutate(nb_mares_reseau = lengths(st_intersects(., mares_sans_doublons))) %>%
     mutate(nb_eau_reseau = lengths(st_intersects(., eau))) %>%
     mutate(reseau_valide = ifelse(
