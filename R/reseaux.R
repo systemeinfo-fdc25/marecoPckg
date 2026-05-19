@@ -129,6 +129,7 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
   res <- res %>%
     mutate(nb_mares_reseau = lengths(st_intersects(., mares_sans_doublons))) %>%
     mutate(nb_eau_reseau = lengths(st_intersects(., eau_clean))) %>%
+    filter(!(nb_mares_reseau == 0 & nb_eau_reseau == 0)) %>%
     mutate(reseau_valide = ifelse(
       (nb_mares_reseau + nb_eau_reseau >= 5) & (nb_mares_reseau >= 3),
       TRUE,
