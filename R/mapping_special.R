@@ -113,7 +113,7 @@ calculs_hydrophytes <- function(cano) {
 #' @importFrom dplyr filter select mutate bind_rows case_when
 #' @importFrom tidyr pivot_wider
 #'
-calculs_dechets <- function(cano) {
+calculs_dechets_v4 <- function(cano) {
   evalued <- cano %>%
     filter(CAN_name %in% c("dechets", "quantite_dechets")) %>%
     select(X_index, CAN_name, CAN_choice) %>%
@@ -146,6 +146,72 @@ calculs_dechets <- function(cano) {
     # Add pollution resultats (C19)
     bind_rows(
       evalued %>%
+        mutate(
+          CAN_name = "pollution",
+          CAN_choice = as.character(dechets),
+          cor_iecmar = as.character(c19)) %>%
+        select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    )
+
+  return(res)
+}
+
+#' Notation des déchets et pollution (codes C18 et C19) - V5 uniquement
+#'
+#' Pour chaque mare, évalue la présence de déchets et leur quantité, puis évalue la pollution.
+#'
+#' @param cano `data.frame`, données mares du kobotoolbox post-canonisation
+#'
+#' @return Le `data.frame` original avec les lignes correspondants aux dechets et quantites
+#' dechêts modifiées pour correspondre à la notation iecmar (dechêts & pollution)
+#'
+#' @importFrom dplyr filter select mutate bind_rows case_when
+#' @importFrom tidyr pivot_wider
+#'
+calculs_dechets_v5 <- function(cano) {
+
+  filtred <- cano %>%
+      filter(CAN_name %in% c("dechets", "quantite_dechets")) %>%
+      select(X_index, CAN_name, CAN_choice)
+
+  dechets <- filtred %>%
+    filter(!grepl("pollution", CAN_choice)) %>%
+    tidyr::pivot_wider(names_from = CAN_name,
+                         values_from = CAN_choice,
+                         values_fn = list
+    ) %>%
+    # Eval dechets
+    mutate(c18 = case_when(
+        dechets == "aucun" ~ 51L,
+        dechets != "aucun" & quantite_dechets == "faible" ~ 52L,
+        dechets != "aucun" & quantite_dechets != "faible" ~ 53L
+    ))
+
+
+  pollution <- filtred %>%
+    tidyr::pivot_wider(names_from = CAN_name,
+                         values_from = CAN_choice,
+                         values_fn = list
+    ) %>%
+    mutate(c19 = case_when(
+      grepl("pollution", dechets) ~ 55L,
+      TRUE ~ 54L
+    ))
+
+ # Add dechets resultats (C18)
+  res <- cano %>%
+    filter(CAN_name %not_in% c("dechets", "quantite_dechets")) %>%
+    bind_rows(
+      dechets %>%
+        mutate(
+          CAN_name = "dechets",
+          CAN_choice = as.character(quantite_dechets),
+          cor_iecmar = as.character(c18)) %>%
+        select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    ) %>%
+    # Add pollution resultats (C19)
+    bind_rows(
+      pollution %>%
         mutate(
           CAN_name = "pollution",
           CAN_choice = as.character(dechets),

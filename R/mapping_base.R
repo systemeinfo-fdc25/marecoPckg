@@ -267,12 +267,13 @@ calculs_particuliers <- function(canonique, version) {
   res_h2    <- calculs_hydrophytes(res_h)
   res_tinw  <- turbidite_if_no_water(res_h2)
   if (version == 4) {
-    res_d   <- calculs_dechets(res_tinw)
+    res_d   <- calculs_dechets_v4(res_tinw)
     res_t   <- calculs_habitats_v4(res_d)
     res_p   <- defaut_proprietaire_favorable_v4(res_t)
     res_c   <- default_corridor_v4(res_p)
   } else {
-    res_c   <- res_tinw
+    res_d   <- calculs_dechets_v5(res_tinw)
+    res_c   <- res_d
   }
 
   res <- res_c %>%

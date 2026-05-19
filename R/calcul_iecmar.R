@@ -32,11 +32,10 @@ process_all <- function(df, version = 5, departement = NULL,
 ) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
-
   message("### Creation des reseaux")
 
   reseaux <- compute_reseaux_mares(
-    df,
+    df_existe,
     eau = marecoPckg::eau_max1ha[[as.character(departement)]],
     routes = marecoPckg::routes_RnAu[[as.character(departement)]],
     lgv = marecoPckg::lgv,
@@ -50,14 +49,14 @@ process_all <- function(df, version = 5, departement = NULL,
   message("### Traitements geometriques...")
 
   res_geom <- process_traitement_geom(
-    df,
+    df_existe,
     eau = marecoPckg::eau[[as.character(departement)]],
     forets = marecoPckg::forets,
     routes = marecoPckg::routes[[as.character(departement)]]
   )
 
   message("### Correspondances des reponses kobo <-> iecmar")
-  kobo_l <- kobo_wide_to_long(df)
+  kobo_l <- kobo_wide_to_long(df_existe)
   # fait les jointures kobo -> canonique -> iecmar
   if (version == 4) {
     canonique <- process_kobo_canonised(kobo_l, corresp_v4, cor_canonique)
@@ -79,7 +78,10 @@ process_all <- function(df, version = 5, departement = NULL,
   res_sf <- left_join(res_reseaux, note_simple_long, by = "X_index") %>%
     calcul_mediane_iecmar_reseaux()
 
-  res_sf_enhanced <- left_join(res_sf, df %>% select(X_index, photographie_URL, mare_existe) %>% st_drop_geometry(), by = "X_index")
+  res_sf_enhanced <- left_join(res_sf, df_existe %>%
+                                          select(X_index, photographie_URL, mare_existe) %>%
+                                          st_drop_geometry(),
+                               by = "X_index")
 
   message("Creation des outputs")
   res <- list(
@@ -95,9 +97,8 @@ process_all <- function(df, version = 5, departement = NULL,
 #' Calcul des scores IECMAR
 #'
 #' Calcule les notes IECMAR à partir d’un jeu de données de réponses.
-#' La fonction joint les points associés, applique un traitement des doublons
-#' (en conservant la pire note par critère), puis calcule une note brute et
-#' une note pondérée sur 20 par individu (`X_index`).
+#' La fonction joint les points associés, applique un traitement des doublons,
+#' puis calcule une note brute et une note pondérée sur 20 par individu (`X_index`).
 #'
 #' @param df Un data.frame contenant au minimum les colonnes `X_index` et `cor_iecmar`.
 #'
