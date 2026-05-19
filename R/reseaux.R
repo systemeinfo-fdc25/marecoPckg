@@ -118,7 +118,9 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
     slice(1)
 
   res <- cut_reseau_by(tampon_eau, routes) %>%
-         cut_reseau_by(., lgv)
+         cut_reseau_by(., lgv) %>%
+         # permet de boucher les trous
+         st_buffer(10) %>% st_buffer(-10)
 
   if (use_OS & !is.null(clc)) {
     res <- cut_reseau_by(res, clc)
