@@ -39,6 +39,7 @@ process_all <- function(
   jdd_v4 = NULL
 ) {
 
+  # Juste un check et stop() si pas ok
   validate_inputs(
     df,
     version,
@@ -49,6 +50,7 @@ process_all <- function(
     use_history_if_exist
   )
 
+  # Garde seulement les mares existes et ajoute de l'historique
   prep <- prepare_input_data(
     df,
     version,
@@ -57,6 +59,7 @@ process_all <- function(
     jdd_v4
   )
 
+  # Cree les reseaux et ajoute l'ID reseaux aux mares (prep$df_all_v)
   reseaux_res <- process_reseaux(
     prep$df_all_v,
     departement,
@@ -65,28 +68,35 @@ process_all <- function(
     buffer_size_for_reseaux
   )
 
+  # Calcul les indicateurs geometrique iecmar sur coordonnees des mares (c11, c12, c13, c15)
   res_geom <- process_iecmar_geom(
     prep$df_all_v,
     departement
   )
 
+  # Wide -> long
+  # Kobo -> canno -> iecmar
+  # Calculs particulies (v4, v5 ou v4 + v5)
   res_forms <- process_iecmar_forms(
     prep$df_all_v,
     version,
     prep$multiple_form_v
   )
 
+  # Rend les resultats iecmar
   compil <- compile_iecmar_inputs(
     res_forms,
     res_geom
   )
 
+  # Cree les formats de sorties
   build_outputs(
     compil = compil,
     res_reseaux = reseaux_res$res_reseaux,
     cor_uuid_form_v = prep$cor_uuid_form_v,
-    df_existe = prep$df_existe,
-    reseaux = reseaux_res$reseaux
+    df_existe = prep$df_all_v,
+    reseaux = reseaux_res$reseaux,
+    multiple_form_v = prep$multiple_form_v
   )
 }
 
@@ -192,7 +202,7 @@ prepare_input_data <- function(
 
   message("### Préparation des données")
 
-df_existe <- df %>%
+  df_existe <- df %>%
     filter(is.na(mare_existe) | mare_existe %in% c('oui', 'peut_etre', 'existe')) %>%
     mutate(form_v = version)
 
@@ -409,7 +419,8 @@ build_outputs <- function(
     res_reseaux,
     cor_uuid_form_v,
     df_existe,
-    reseaux
+    reseaux,
+    multiple_form_v
 ) {
 
   message("### Calcul IECMAR")
@@ -425,7 +436,7 @@ build_outputs <- function(
   res_sf_enhanced <-  left_join(res_sf, df_existe %>%
                                           select(X_uuid, photographie_URL) %>%
                                           st_drop_geometry(),
-                               by = "X_uuid")
+                         by = "X_uuid")
 
   list(
     resultat = res_sf,

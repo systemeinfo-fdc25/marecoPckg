@@ -135,7 +135,7 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
       TRUE,
       FALSE)) %>%
     rename(id_reseau = "rmapshaperid") %>%
-    mutate(surface_ha = st_area(geometry) / 10000)
+    mutate(surface_ha = round(st_area(geometry) / 10000, 2))
 
   return(res)
 }

@@ -7,7 +7,7 @@ jdd_v4 <- list(
 
 jdd_v4 <- lapply(jdd_v4, function(df) {
   df %>% mutate(form_v = 4L) %>%
-    filter(is.na(mare_existe) | mare_existe %in% c('oui', 'peut_etre', 'existe'))
+    filter(is.na(mare_existe) | mare_existe %in% c('oui', 'existe'))
 })
 
 usethis::use_data(jdd_v4, overwrite = TRUE)
