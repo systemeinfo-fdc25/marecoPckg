@@ -263,7 +263,7 @@ nb_entites_dans_rayon_centroids <- function(a, b, rayon = 500) {
 #'
 #' @return Un `data.frame` contenant :
 #' \describe{
-#'   \item{X_index}{Identifiant de la mare}
+#'   \item{X_uuid}{Identifiant de la mare}
 #'   \item{c11}{Code C11 attribué selon la distance minimale aux autres mares ou
 #'   aux plans d'eau (31, 32 ou 33)}
 #' }
@@ -283,9 +283,9 @@ iecmar_c11 <- function(kobo, surface_eau) {
 
   res_surfacique <- minimal_distance(kobo, hydro_surfacique) %>%
     st_drop_geometry() %>%
-    select(X_index, dist_surfacique)
+    select(X_uuid, dist_surfacique)
 
-  res <- left_join(res_mares, res_surfacique, by = "X_index") %>%
+  res <- left_join(res_mares, res_surfacique, by = "X_uuid") %>%
     mutate(dist_mare = as.numeric(dist_mare),
            dist_surfacique = as.numeric(dist_surfacique)) %>%
     mutate(distance_retenu = ifelse(dist_mare < dist_surfacique, dist_mare, dist_surfacique)) %>%
@@ -300,7 +300,7 @@ iecmar_c11 <- function(kobo, surface_eau) {
            ),
     ) %>%
     st_drop_geometry() %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   return(res)
 }
@@ -316,7 +316,7 @@ iecmar_c11 <- function(kobo, surface_eau) {
 #'
 #' @return Un `data.frame` contenant :
 #' \describe{
-#'   \item{X_index}{Identifiant de la mare}
+#'   \item{X_uuid}{Identifiant de la mare}
 #'   \item{c12}{Code C12 attribué selon le nombre de pièces d'eau à proximité
 #'   (34, 35 ou 36)}
 #' }
@@ -338,7 +338,7 @@ iecmar_c12 <- function(kobo, surface_eau) {
       )
     )) %>%
     st_drop_geometry() %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   return(buffed)
 }
@@ -354,7 +354,7 @@ iecmar_c12 <- function(kobo, surface_eau) {
 #'
 #' @return Un `data.frame` contenant :
 #' \describe{
-#'   \item{X_index}{Identifiant de la mare}
+#'   \item{X_uuid}{Identifiant de la mare}
 #'   \item{c13}{Code C13 attribué selon la distance au site hivernal (37, 38 ou 39)}
 #' }
 #'
@@ -373,7 +373,7 @@ iecmar_c13 <- function(kobo, site_hiver) {
       )
     )) %>%
     st_drop_geometry() %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   return(res)
 }
@@ -390,7 +390,7 @@ iecmar_c13 <- function(kobo, site_hiver) {
 #'
 #' @return Un `data.frame` contenant :
 #' \describe{
-#'   \item{X_index}{Identifiant de la mare}
+#'   \item{X_uuid}{Identifiant de la mare}
 #'   \item{c15}{Code C15 attribué selon la proximité et le type de route (43, 44 ou 45)}
 #' }
 #'
@@ -401,7 +401,7 @@ iecmar_c15 <- function(kobo, routes, buffer = 250) {
 
   routes_mares <- kobo %>%
     # Step 1
-    select(X_index) %>%
+    select(X_uuid) %>%
     st_buffer(buffer) %>%
     # Step 2
     st_intersection(routes) %>%
@@ -412,13 +412,13 @@ iecmar_c15 <- function(kobo, routes, buffer = 250) {
       is.na(cpx_classe) & nature == "Route a 1 chaussee"   ~ 44  # 2 pts (Route bitumée communale)
     )) %>%
     # Step 4
-    group_by(X_index) %>%
+    group_by(X_uuid) %>%
     arrange(c15) %>%
     summarise(c15 = max(c15))
 
     # Step 5
   kobo_routes_mares <- kobo %>%
-    left_join(routes_mares, by = "X_index") %>%
+    left_join(routes_mares, by = "X_uuid") %>%
     mutate(c15 = ifelse(is.na(c15), 43, c15))  # 5 pts si absence de jointure
 
   res <-  kobo_routes_mares %>%
@@ -430,7 +430,7 @@ iecmar_c15 <- function(kobo, routes, buffer = 250) {
              c15 == "45" ~ "Route departementale, nationale ou autoroute"
            ),
            cor_iecmar = as.character(c15)) %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   return(res)
 }

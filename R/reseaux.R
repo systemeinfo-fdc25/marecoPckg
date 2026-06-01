@@ -110,7 +110,7 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
   eau_clean <- prepare_data_hydro(kobo, eau)
 
   tampon_eau <- kobo %>%
-    select(X_index) %>%
+    select(X_uuid) %>%
     create_raw_reseau(., eau_clean, buffer = buffer_size)
 
   mares_sans_doublons <- kobo %>%
@@ -155,7 +155,7 @@ compute_reseaux_mares <- function(kobo, eau, routes, lgv, clc = NULL, use_OS = T
 assign_id_reseau_to_mares <- function(kobo, reseau) {
   kobo_enhanced <- st_join_nearest(kobo, reseau) %>%
     # mutate(fid = row.names(.)) %>%
-    select(X_index, id_reseau, nb_mares_reseau)
+    select(X_uuid, id_reseau, nb_mares_reseau)
 
   return(kobo_enhanced)
 }

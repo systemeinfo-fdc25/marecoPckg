@@ -13,7 +13,7 @@
 calculs_superficie <- function(cano) {
   q_surface <- cano %>%
     filter(id_can %in% c(200, 201)) %>%
-    group_by(X_index) %>%
+    group_by(X_uuid) %>%
     summarise(id_temp = first(id_temp),
               colname = "mare_superficie",
               # value_simple = prod(as.integer(value)),
@@ -81,7 +81,7 @@ calculs_hydrophytes <- function(cano) {
 
   q_hydrophye <- cano %>%
     filter(id_can %in% c(208, 209)) %>%
-    group_by(X_index) %>%
+    group_by(X_uuid) %>%
     summarise(id_temp = first(id_temp),
               colname = "rec_hydrophytes",
               value = sum(as.integer(value))) %>%
@@ -116,7 +116,7 @@ calculs_hydrophytes <- function(cano) {
 calculs_dechets_v4 <- function(cano) {
   evalued <- cano %>%
     filter(CAN_name %in% c("dechets", "quantite_dechets")) %>%
-    select(X_index, CAN_name, CAN_choice) %>%
+    select(X_uuid, CAN_name, CAN_choice) %>%
     tidyr::pivot_wider(names_from = CAN_name,
                   values_from = CAN_choice
     ) %>%
@@ -141,7 +141,7 @@ calculs_dechets_v4 <- function(cano) {
           CAN_name = "dechets",
           CAN_choice = as.character(quantite_dechets),
           cor_iecmar = as.character(c18)) %>%
-        select(X_index, CAN_name, CAN_choice, cor_iecmar)
+        select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
     ) %>%
     # Add pollution resultats (C19)
     bind_rows(
@@ -150,7 +150,7 @@ calculs_dechets_v4 <- function(cano) {
           CAN_name = "pollution",
           CAN_choice = as.character(dechets),
           cor_iecmar = as.character(c19)) %>%
-        select(X_index, CAN_name, CAN_choice, cor_iecmar)
+        select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
     )
 
   return(res)
@@ -174,7 +174,7 @@ calculs_dechets_v5 <- function(cano) {
       # Magouille pour gerer le quantite_dechet qui galere dans les joins car il est souvent en NA
       filter(colname %in% c("dechets", "quantite_dechets")) %>%
       mutate(CAN_name = ifelse(colname == "quantite_dechets", "quantite_dechets", CAN_name)) %>%
-      select(X_index, CAN_name, CAN_choice)
+      select(X_uuid, CAN_name, CAN_choice)
 
   dechets <- filtred %>%
     filter(!grepl("pollution", CAN_choice)) %>%
@@ -209,7 +209,7 @@ calculs_dechets_v5 <- function(cano) {
           CAN_name = "dechets",
           CAN_choice = as.character(quantite_dechets),
           cor_iecmar = as.character(c18)) %>%
-        select(X_index, CAN_name, CAN_choice, cor_iecmar)
+        select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
     ) %>%
     # Add pollution resultats (C19)
     bind_rows(
@@ -218,7 +218,7 @@ calculs_dechets_v5 <- function(cano) {
           CAN_name = "pollution",
           CAN_choice = as.character(dechets),
           cor_iecmar = as.character(c19)) %>%
-        select(X_index, CAN_name, CAN_choice, cor_iecmar)
+        select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
     )
 
   return(res)
@@ -231,7 +231,7 @@ calculs_dechets_v5 <- function(cano) {
 #' attribue le code IECMAR correspondant selon les règles définies.
 #'
 #' @param canonique `data.frame`, jeu de données canonisé avec colonnes
-#' `X_index`, `CAN_name` et `CAN_choice`
+#' `X_uuid`, `CAN_name` et `CAN_choice`
 #'
 #' @return Un `data.frame` contenant toutes les lignes originales ainsi que les lignes
 #' calculées pour `type_mare` avec la colonne `cor_iecmar` indiquant le code
@@ -241,7 +241,7 @@ calculs_dechets_v5 <- function(cano) {
 #'
 calculs_habitats_v4 <- function(canonique) {
   res_code <- canonique %>%
-    group_by(X_index) %>%
+    group_by(X_uuid) %>%
     summarise(
       type_mare = CAN_choice[CAN_name == "type_mare" & !is.na(CAN_choice)],  # réponse exacte à type_mare
       habitats = list(CAN_choice[CAN_name == "habitat" & !is.na(CAN_choice)])
@@ -265,7 +265,7 @@ calculs_habitats_v4 <- function(canonique) {
       )
     )) %>%
     mutate(CAN_choice = paste0(type_mare, "(", as.character(habitats), ")")) %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   res <- canonique %>%
     filter(CAN_name %not_in% c("type_mare_autre", "habitat", "type_mare")) %>%
@@ -281,7 +281,7 @@ calculs_habitats_v4 <- function(canonique) {
 #' une valeur par défaut est attribuée avec le code IECMAR correspondant.
 #'
 #' @param canonique `data.frame`, jeu de données canonisé contenant au moins
-#' les colonnes `X_index`, `colname`, `CAN_name`, `CAN_choice`, `id_can`,
+#' les colonnes `X_uuid`, `colname`, `CAN_name`, `CAN_choice`, `id_can`,
 #' et `cor_iecmar`
 #'
 #' @return Un `data.frame` où les lignes liées à la turbidité sont complétées :
@@ -301,13 +301,16 @@ calculs_habitats_v4 <- function(canonique) {
 turbidite_if_no_water <- function(canonique) {
   res_code <- canonique %>%
     filter(colname == "turbidite") %>% # Usage du colname et non du CAN_name car si turbidite = NULL, le CAN_name est NA
-    group_by(X_index) %>%
-    mutate(CAN_name = ifelse(is.na(id_can), "turbidite", CAN_name)) %>%
-    mutate(CAN_choice = ifelse(is.na(id_can), "Inconnu", CAN_choice)) %>%
-    mutate(cor_iecmar = ifelse(is.na(id_can), as.character(11), cor_iecmar)) %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    group_by(X_uuid) %>%
+    mutate(CAN_name = as.character(ifelse(is.na(id_can), "turbidite", CAN_name))) %>%
+    mutate(CAN_choice = as.character(ifelse(is.na(id_can), "Inconnu", CAN_choice))) %>%
+    mutate(cor_iecmar = as.character(ifelse(is.na(id_can), as.character(11), cor_iecmar))) %>%
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   res <- canonique %>%
+    mutate(CAN_name = as.character(CAN_name)) %>%
+    mutate(CAN_choice = as.character(CAN_choice)) %>%
+    mutate(cor_iecmar = as.character(cor_iecmar)) %>%
     filter(colname != "turbidite") %>%
     bind_rows(res_code)
 
@@ -320,7 +323,7 @@ turbidite_if_no_water <- function(canonique) {
 #' écologique altéré lorsque l'information n'est pas renseignée dans la V4.
 #'
 #' @param canonique `data.frame`, jeu de données canonisé contenant au moins
-#' la colonne `X_index`
+#' la colonne `X_uuid`
 #'
 #' @return Un `data.frame` enrichi avec une ligne par mare :
 #' \describe{
@@ -337,8 +340,8 @@ turbidite_if_no_water <- function(canonique) {
 #' @importFrom dplyr select distinct mutate bind_rows
 default_corridor_v4 <- function(canonique) {
   c14 <- canonique %>%
-    select(X_index) %>%
-    distinct(X_index) %>%
+    select(X_uuid) %>%
+    distinct(X_uuid) %>%
     mutate(
       CAN_name = "corridor_lineaire_5m",
       CAN_choice = "corridor_altere",

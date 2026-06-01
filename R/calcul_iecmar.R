@@ -6,7 +6,7 @@
 #' - Transformation et canonisation des réponses Kobo
 #' - Calculs particuliers et compilation finale
 #'
-#' Elle prépare un tableau final avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`.
+#' Elle prépare un tableau final avec les colonnes `X_uuid`, `CAN_name`, `CAN_choice` et `cor_iecmar`.
 #'
 #' @param df Un data.frame contenant les données initiales des mares et des réponses.
 #' @param version Entier correspondant à la version du formulaire kobotoolbox utilisée (default : 5).
@@ -21,7 +21,7 @@
 #' réseaux.
 #' @param use_history_if_exist utilise pour rechercher les donnees des anciens formulaires s'ils sont connus
 #'
-#' @return Un data.frame avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`,
+#' @return Un data.frame avec les colonnes `X_uuid`, `CAN_name`, `CAN_choice` et `cor_iecmar`,
 #'         prêt à être utilisé pour les analyses IECMAR.
 #'
 #' @importFrom dplyr bind_rows mutate select
@@ -46,8 +46,20 @@ process_all <- function(df, version = 5L, departement = NULL,
   if (multiple_form_v) {
     message("### Ajout des donnees historiques")
     df_all_v <- bind_rows(df_existe, marecoPckg::jdd_v4[[as.character(departement)]])
+
+    cor_uuid_form_v <- df_all_v %>%
+      st_drop_geometry() %>%
+      select(X_uuid, form_v) %>%
+      unique()
+
   } else {
     df_all_v <- df_existe
+
+    cor_uuid_form_v <- df_all_v %>%
+      st_drop_geometry() %>%
+      select(X_uuid) %>%
+      unique() %>%
+      mutate(form_v = version)
   }
 
   message("### Creation des reseaux")
@@ -86,8 +98,8 @@ process_all <- function(df, version = 5L, departement = NULL,
     res_forms <- calculs_particuliers(canonique, version) # genre la surface ellipsoidale...
   } else if (multiple_form_v) {
     #TODO: faire le versionning direct dans process_kobo_canonised() ?
-    kobo_l_v4 <- kobo_l %>% filter(colname == "form_v" & value == 4L)
-    kobo_l_v5 <- kobo_l %>% filter(colname == "form_v" & value == 5L)
+    kobo_l_v4 <- kobo_l %>% group_by(X_uuid) %>% filter(any(colname == "form_v" & value == 4L)) %>% ungroup()
+    kobo_l_v5 <- kobo_l %>% group_by(X_uuid) %>% filter(any(colname == "form_v" & value == 5L)) %>% ungroup()
 
     canonique_v4 <- process_kobo_canonised(kobo_l_v4, corresp_v4, cor_canonique)
     canonique_v5 <- process_kobo_canonised(kobo_l_v5, corresp_v5, cor_canonique)
@@ -100,25 +112,27 @@ process_all <- function(df, version = 5L, departement = NULL,
   compil <- bind_rows(res_forms, res_geom) %>%
     mutate(CAN_name = ifelse(is.na(CAN_name), colname, CAN_name),
            CAN_choice = ifelse(is.na(CAN_choice), value, CAN_choice)) %>%
-    select(X_index, CAN_name, CAN_choice, cor_iecmar)
+    select(X_uuid, CAN_name, CAN_choice, cor_iecmar)
 
   message("Calcul de la note iecmar")
   notes_detail <- calcul_iecmar(compil)
   note_simple_long <- output_note_only_l(notes_detail)
 
-  res_sf <- left_join(res_reseaux, note_simple_long, by = "X_index") %>%
-    calcul_mediane_iecmar_reseaux()
+  res_sf <- left_join(res_reseaux, note_simple_long, by = "X_uuid") %>%
+    calcul_mediane_iecmar_reseaux() %>%
+    left_join(cor_uuid_form_v, by = "X_uuid") %>%
+    mutate(form_v = as.integer(form_v))
 
   res_sf_enhanced <-  left_join(res_sf, df_existe %>%
-                                          select(X_index, photographie_URL) %>%
+                                          select(X_uuid, photographie_URL) %>%
                                           st_drop_geometry(),
-                               by = "X_index")
+                               by = "X_uuid")
 
   message("Creation des outputs")
   res <- list(
-    resultat = res_sf %>% rename(`_index_kobo` = "X_index"),
-    resultat_photo = res_sf_enhanced %>% rename(`_index_kobo` = "X_index"),
-    notes_details = notes_detail %>% rename(`_index_kobo` = "X_index"),
+    resultat = res_sf,
+    resultat_photo = res_sf_enhanced,
+    notes_details = notes_detail,
     reseaux = reseaux
   )
 
@@ -129,9 +143,9 @@ process_all <- function(df, version = 5L, departement = NULL,
 #'
 #' Calcule les notes IECMAR à partir d’un jeu de données de réponses.
 #' La fonction joint les points associés, applique un traitement des doublons,
-#' puis calcule une note brute et une note pondérée sur 20 par individu (`X_index`).
+#' puis calcule une note brute et une note pondérée sur 20 par individu (`X_uuid`).
 #'
-#' @param df Un data.frame contenant au minimum les colonnes `X_index` et `cor_iecmar`.
+#' @param df Un data.frame contenant au minimum les colonnes `X_uuid` et `cor_iecmar`.
 #'
 #' @return Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
 #'
@@ -143,7 +157,7 @@ calcul_iecmar <- function(df) {
     left_join(iecmar, by = c("cor_iecmar" = "id_iecmar"))
 
   res <- ajustements_doublons(df_with_pts) %>%
-    group_by(X_index) %>%
+    group_by(X_uuid) %>%
     mutate(n_critere = sum(!is.na(cor_iecmar)),
            note = sum(points, na.rm = T))
 
@@ -153,10 +167,10 @@ calcul_iecmar <- function(df) {
 #' Ajustement des doublons IECMAR
 #'
 #' Gère les doublons par critère en conservant, pour chaque combinaison
-#' `X_index` et `critere`, la pire note (valeur minimale de `points`).
+#' `X_uuid` et `critere`, la pire note (valeur minimale de `points`).
 #' Les lignes avec `critere` manquant (`NA`) sont conservées sans modification.
 #'
-#' @param df Un data.frame contenant les colonnes `X_index`, `critere` et `points`.
+#' @param df Un data.frame contenant les colonnes `X_uuid`, `critere` et `points`.
 #'
 #' @return Un data.frame sans doublons sur les critères non manquants.
 #'
@@ -165,7 +179,7 @@ calcul_iecmar <- function(df) {
 ajustements_doublons <- function(df) {
   res_non_na <- df %>%
     filter(!is.na(critere)) %>%
-    group_by(X_index, critere) %>%
+    group_by(X_uuid, critere) %>%
     slice_min(points, n = 1, with_ties = FALSE) %>%
     ungroup()
 
@@ -178,20 +192,20 @@ ajustements_doublons <- function(df) {
 #' Extraire la première note par mare
 #'
 #' Sélectionne les colonnes clés liées à la notation IECMAR et conserve
-#' uniquement la première ligne pour chaque mare (`X_index`).
+#' uniquement la première ligne pour chaque mare (`X_uuid`).
 #'
 #' @param df `data.frame`, contenant au moins les colonnes :
-#' \code{X_index}, \code{n_critere}, \code{note}
+#' \code{X_uuid}, \code{n_critere}, \code{note}
 #'
 #' @return Un `data.frame` réduit à une ligne par mare avec les colonnes :
-#' \code{X_index}, \code{n_critere}, \code{note}
+#' \code{X_uuid}, \code{n_critere}, \code{note}
 #'
 #' @importFrom dplyr select group_by slice
 #'
 output_note_only_l <- function(df) {
   res <- df %>%
-    select(X_index, n_critere, note) %>%
-    group_by(X_index) %>%
+    select(X_uuid, n_critere, note) %>%
+    group_by(X_uuid) %>%
     slice(1)
 }
 

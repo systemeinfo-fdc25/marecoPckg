@@ -7,7 +7,7 @@
 #'
 #' @return Un `data.frame` au format long avec les colonnes :
 #' \describe{
-#'   \item{X_index}{Identifiant de l'observation}
+#'   \item{X_uuid}{Identifiant de l'observation}
 #'   \item{colname}{Nom de la variable}
 #'   \item{value}{Valeur associée}
 #'   \item{id_temp}{Identifiant technique de ligne}
@@ -21,7 +21,7 @@ kobo_wide_to_long <- function(kobo) {
 
   long <- st_drop_geometry(kobo) %>%
     mutate(across(everything(), as.character)) %>%
-    pivot_longer(-X_index, names_to = "colname", values_to = "value") %>%
+    pivot_longer(-X_uuid, names_to = "colname", values_to = "value") %>%
     mutate(id_temp = row.names(.))
   return(long)
 }
@@ -93,7 +93,7 @@ compute_q_uni <- function(q_multi_r_uni_before_filter, cor, canonique) {
 
   r_avec_value <- q_multi_r_uni_before_filter %>%
     filter(is.na(id_can), !is.na(value)) %>%
-    select(X_index, colname, value, id_temp) %>%
+    select(X_uuid, colname, value, id_temp) %>%
     left_join(cor, by = c("colname" = "name_survey")) %>%
     left_join(canonique, by = c("id_can" = "CAN_id"))
 
@@ -181,7 +181,7 @@ try_find_orphelin <- function(total, extract1, extract2, extract3) {
 #' Pour chaque mare, ajoute une ligne indiquant l’absence de mesures de protection
 #' si aucune information n’est déjà présente. Le code IECMAR C20 est fixé à 58.
 #'
-#' @param df `data.frame`, contenant au moins la colonne `X_index`
+#' @param df `data.frame`, contenant au moins la colonne `X_uuid`
 #'
 #' @return Un `data.frame` enrichi avec une ligne par mare (si nécessaire) :
 #' \describe{
@@ -194,8 +194,8 @@ try_find_orphelin <- function(total, extract1, extract2, extract3) {
 #'
 defaut_proprietaire_favorable_v4 <- function(df) {
   c20 <- df %>%
-    select(X_index) %>%
-    distinct(X_index) %>%
+    select(X_uuid) %>%
+    distinct(X_uuid) %>%
     mutate(CAN_name = "mesures_protection",
            CAN_choice = "aucune",
            cor_iecmar = as.character(58)
@@ -241,7 +241,7 @@ process_kobo_canonised <- function(kobo, cor, cor_canonique) {
 #' d’observations de mares pour calculer différents indicateurs IECMAR.
 #'
 #' @param canonique `data.frame`, jeu de données canonisé contenant les colonnes
-#' nécessaires aux fonctions internes (X_index, CAN_name, CAN_choice, etc.)
+#' nécessaires aux fonctions internes (X_uuid, CAN_name, CAN_choice, etc.)
 #' @param version `integer`, version du calcul (par ex. 4 pour inclure déchets,
 #' habitats et mesures de protection)
 #'
@@ -276,8 +276,7 @@ calculs_particuliers <- function(canonique, version) {
     res_c   <- res_d
   }
 
-  res <- res_c %>%
-    mutate(X_index = as.integer(X_index))
+  res <- res_c
 
   return(res)
 }
