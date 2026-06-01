@@ -19,7 +19,9 @@
 #' @param buffer_size_for_reseaux Numeric, distance en metres appliquee comme tampon autour des pièces d'eau
 #' (mares + plans d'eau) pour calculer les connexions au sein d'un réseau (default: 1000).
 #' réseaux.
-#' @param use_history_if_exist utilise pour rechercher les donnees des anciens formulaires s'ils sont connus
+#' @param use_history_if_exist utilise pour rechercher les donnees des anciens formulaires s'ils sont connus. Si jdd_v4
+#' est inconnu, veuillez utiliser FALSE
+#' @param jdd_v4 Transmission de la liste des jeux de données du formulaire V4
 #'
 #' @return Un data.frame avec les colonnes `X_uuid`, `CAN_name`, `CAN_choice` et `cor_iecmar`,
 #'         prêt à être utilisé pour les analyses IECMAR.
@@ -29,7 +31,8 @@
 #' @export
 process_all <- function(df, version = 5L, departement = NULL,
                         use_OS_for_reseaux = TRUE, use_RD_for_reseaux = FALSE,
-                        buffer_size_for_reseaux, use_history_if_exist = TRUE
+                        buffer_size_for_reseaux, use_history_if_exist = TRUE,
+                        jdd_v4 = NULL
 ) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
@@ -39,13 +42,13 @@ process_all <- function(df, version = 5L, departement = NULL,
 
 
   # Logical : dit si il faut utilise l'historique et s'il existe
-  multiple_form_v <- ifelse(use_history_if_exist, departement %in% names(jdd_v4), FALSE)
+  multiple_form_v <- ifelse(use_history_if_exist | is.null(jdd_v4), departement %in% names(jdd_v4), FALSE)
 
 
   # Ajoute le v4 du departement au JDD si il est connu
   if (multiple_form_v) {
     message("### Ajout des donnees historiques")
-    df_all_v <- bind_rows(df_existe, marecoPckg::jdd_v4[[as.character(departement)]])
+    df_all_v <- bind_rows(df_existe, jdd_v4[[as.character(departement)]])
 
     cor_uuid_form_v <- df_all_v %>%
       st_drop_geometry() %>%
