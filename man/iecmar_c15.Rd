@@ -17,7 +17,7 @@ iecmar_c15(kobo, routes, buffer = 250)
 \value{
 Un `data.frame` contenant :
 \describe{
-  \item{X_index}{Identifiant de la mare}
+  \item{X_uuid}{Identifiant de la mare}
   \item{c15}{Code C15 attribué selon la proximité et le type de route (43, 44 ou 45)}
 }
 }

@@ -7,7 +7,7 @@
 calcul_iecmar(df)
 }
 \arguments{
-\item{df}{Un data.frame contenant au minimum les colonnes `X_index` et `cor_iecmar`.}
+\item{df}{Un data.frame contenant au minimum les colonnes `X_uuid` et `cor_iecmar`.}
 }
 \value{
 Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
@@ -15,5 +15,5 @@ Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
 \description{
 Calcule les notes IECMAR à partir d’un jeu de données de réponses.
 La fonction joint les points associés, applique un traitement des doublons,
-puis calcule une note brute et une note pondérée sur 20 par individu (`X_index`).
+puis calcule une note brute et une note pondérée sur 20 par individu (`X_uuid`).
 }

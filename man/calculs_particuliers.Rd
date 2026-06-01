@@ -8,7 +8,7 @@ calculs_particuliers(canonique, version)
 }
 \arguments{
 \item{canonique}{`data.frame`, jeu de données canonisé contenant les colonnes
-nécessaires aux fonctions internes (X_index, CAN_name, CAN_choice, etc.)}
+nécessaires aux fonctions internes (X_uuid, CAN_name, CAN_choice, etc.)}
 
 \item{version}{`integer`, version du calcul (par ex. 4 pour inclure déchets,
 habitats et mesures de protection)}

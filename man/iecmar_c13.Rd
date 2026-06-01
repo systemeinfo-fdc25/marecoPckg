@@ -15,7 +15,7 @@ terrestres hivernaux}
 \value{
 Un `data.frame` contenant :
 \describe{
-  \item{X_index}{Identifiant de la mare}
+  \item{X_uuid}{Identifiant de la mare}
   \item{c13}{Code C13 attribué selon la distance au site hivernal (37, 38 ou 39)}
 }
 }

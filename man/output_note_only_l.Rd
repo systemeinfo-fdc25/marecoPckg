@@ -8,13 +8,13 @@ output_note_only_l(df)
 }
 \arguments{
 \item{df}{`data.frame`, contenant au moins les colonnes :
-\code{X_index}, \code{n_critere}, \code{note}}
+\code{X_uuid}, \code{n_critere}, \code{note}}
 }
 \value{
 Un `data.frame` réduit à une ligne par mare avec les colonnes :
-\code{X_index}, \code{n_critere}, \code{note}
+\code{X_uuid}, \code{n_critere}, \code{note}
 }
 \description{
 Sélectionne les colonnes clés liées à la notation IECMAR et conserve
-uniquement la première ligne pour chaque mare (`X_index`).
+uniquement la première ligne pour chaque mare (`X_uuid`).
 }

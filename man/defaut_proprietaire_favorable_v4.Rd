@@ -7,7 +7,7 @@
 defaut_proprietaire_favorable_v4(df)
 }
 \arguments{
-\item{df}{`data.frame`, contenant au moins la colonne `X_index`}
+\item{df}{`data.frame`, contenant au moins la colonne `X_uuid`}
 }
 \value{
 Un `data.frame` enrichi avec une ligne par mare (si nécessaire) :

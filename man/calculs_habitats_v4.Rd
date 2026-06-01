@@ -8,7 +8,7 @@ calculs_habitats_v4(canonique)
 }
 \arguments{
 \item{canonique}{`data.frame`, jeu de données canonisé avec colonnes
-`X_index`, `CAN_name` et `CAN_choice`}
+`X_uuid`, `CAN_name` et `CAN_choice`}
 }
 \value{
 Un `data.frame` contenant toutes les lignes originales ainsi que les lignes

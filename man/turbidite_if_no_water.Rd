@@ -8,7 +8,7 @@ turbidite_if_no_water(canonique)
 }
 \arguments{
 \item{canonique}{`data.frame`, jeu de données canonisé contenant au moins
-les colonnes `X_index`, `colname`, `CAN_name`, `CAN_choice`, `id_can`,
+les colonnes `X_uuid`, `colname`, `CAN_name`, `CAN_choice`, `id_can`,
 et `cor_iecmar`}
 }
 \value{

@@ -7,13 +7,13 @@
 ajustements_doublons(df)
 }
 \arguments{
-\item{df}{Un data.frame contenant les colonnes `X_index`, `critere` et `points`.}
+\item{df}{Un data.frame contenant les colonnes `X_uuid`, `critere` et `points`.}
 }
 \value{
 Un data.frame sans doublons sur les critères non manquants.
 }
 \description{
 Gère les doublons par critère en conservant, pour chaque combinaison
-`X_index` et `critere`, la pire note (valeur minimale de `points`).
+`X_uuid` et `critere`, la pire note (valeur minimale de `points`).
 Les lignes avec `critere` manquant (`NA`) sont conservées sans modification.
 }

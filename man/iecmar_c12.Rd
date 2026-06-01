@@ -14,7 +14,7 @@ iecmar_c12(kobo, surface_eau)
 \value{
 Un `data.frame` contenant :
 \describe{
-  \item{X_index}{Identifiant de la mare}
+  \item{X_uuid}{Identifiant de la mare}
   \item{c12}{Code C12 attribué selon le nombre de pièces d'eau à proximité
   (34, 35 ou 36)}
 }

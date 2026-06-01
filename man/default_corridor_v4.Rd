@@ -8,7 +8,7 @@ default_corridor_v4(canonique)
 }
 \arguments{
 \item{canonique}{`data.frame`, jeu de données canonisé contenant au moins
-la colonne `X_index`}
+la colonne `X_uuid`}
 }
 \value{
 Un `data.frame` enrichi avec une ligne par mare :

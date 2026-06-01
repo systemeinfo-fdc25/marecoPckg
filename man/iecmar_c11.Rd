@@ -14,7 +14,7 @@ iecmar_c11(kobo, surface_eau)
 \value{
 Un `data.frame` contenant :
 \describe{
-  \item{X_index}{Identifiant de la mare}
+  \item{X_uuid}{Identifiant de la mare}
   \item{c11}{Code C11 attribué selon la distance minimale aux autres mares ou
   aux plans d'eau (31, 32 ou 33)}
 }

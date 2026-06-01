@@ -12,7 +12,7 @@ kobo_wide_to_long(kobo)
 \value{
 Un `data.frame` au format long avec les colonnes :
 \describe{
-  \item{X_index}{Identifiant de l'observation}
+  \item{X_uuid}{Identifiant de l'observation}
   \item{colname}{Nom de la variable}
   \item{value}{Valeur associée}
   \item{id_temp}{Identifiant technique de ligne}
