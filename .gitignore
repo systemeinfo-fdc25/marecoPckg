@@ -4,3 +4,5 @@ data-raw/mapping
 data-raw/shp
 .idea
 main.R
+data-raw/jdd_v4
+data/jdd_v4.rda
