@@ -19,6 +19,7 @@
 #' @param buffer_size_for_reseaux Numeric, distance en metres appliquee comme tampon autour des pièces d'eau
 #' (mares + plans d'eau) pour calculer les connexions au sein d'un réseau (default: 1000).
 #' réseaux.
+#' @param use_history_if_exist utilise pour rechercher les donnees des anciens formulaires s'ils sont connus
 #'
 #' @return Un data.frame avec les colonnes `X_index`, `CAN_name`, `CAN_choice` et `cor_iecmar`,
 #'         prêt à être utilisé pour les analyses IECMAR.
@@ -26,19 +27,33 @@
 #' @importFrom dplyr bind_rows mutate select
 #'
 #' @export
-process_all <- function(df, version = 5, departement = NULL,
+process_all <- function(df, version = 5L, departement = NULL,
                         use_OS_for_reseaux = TRUE, use_RD_for_reseaux = FALSE,
-                        buffer_size_for_reseaux
+                        buffer_size_for_reseaux, use_history_if_exist = TRUE
 ) {
   if (!inherits(df, "sf")) {stop("Le jdd fourni n'est pas au format sf")}
 
   df_existe <- df %>%
-    filter(is.na(mare_existe) | mare_existe %in% c('oui', 'peut_etre', 'existe'))
+    filter(is.na(mare_existe) | mare_existe %in% c('oui', 'peut_etre', 'existe')) %>%
+    mutate(form_v = version)
+
+
+  # Logical : dit si il faut utilise l'historique et s'il existe
+  multiple_form_v <- ifelse(use_history_if_exist, departement %in% names(jdd_v4), FALSE)
+
+
+  # Ajoute le v4 du departement au JDD si il est connu
+  if (multiple_form_v) {
+    message("### Ajout des donnees historiques")
+    df_all_v <- bind_rows(df_existe, marecoPckg::jdd_v4[[as.character(departement)]])
+  } else {
+    df_all_v <- df_existe
+  }
 
   message("### Creation des reseaux")
 
   reseaux <- compute_reseaux_mares(
-    df_existe,
+    df_all_v,
     eau = marecoPckg::eau_max1ha[[as.character(departement)]],
     routes = marecoPckg::routes_RnAu[[as.character(departement)]],
     lgv = marecoPckg::lgv,
@@ -47,26 +62,39 @@ process_all <- function(df, version = 5, departement = NULL,
     use_RD = use_RD_for_reseaux,
     buffer_size = buffer_size_for_reseaux
   )
-  res_reseaux <- assign_id_reseau_to_mares(df, reseaux)
+  res_reseaux <- assign_id_reseau_to_mares(df_all_v, reseaux)
 
   message("### Traitements geometriques...")
 
   res_geom <- process_traitement_geom(
-    df_existe,
+    df_all_v,
     eau = marecoPckg::eau[[as.character(departement)]],
     forets = marecoPckg::forets,
     routes = marecoPckg::routes[[as.character(departement)]]
   )
 
   message("### Correspondances des reponses kobo <-> iecmar")
-  kobo_l <- kobo_wide_to_long(df_existe)
-  # fait les jointures kobo -> canonique -> iecmar
-  if (version == 4) {
-    canonique <- process_kobo_canonised(kobo_l, corresp_v4, cor_canonique)
-  } else if (version == 5) {
-    canonique <- process_kobo_canonised(kobo_l, corresp_v5, cor_canonique)
+  kobo_l <- kobo_wide_to_long(df_all_v)
+
+  if (!multiple_form_v) { # Si il n'y a qu'une version
+      # fait les jointures kobo -> canonique -> iecmar
+    if (version == 4L) {
+      canonique <- process_kobo_canonised(kobo_l, corresp_v4, cor_canonique)
+    } else if (version == 5L) {
+      canonique <- process_kobo_canonised(kobo_l, corresp_v5, cor_canonique)
+    }
+    res_forms <- calculs_particuliers(canonique, version) # genre la surface ellipsoidale...
+  } else if (multiple_form_v) {
+    #TODO: faire le versionning direct dans process_kobo_canonised() ?
+    kobo_l_v4 <- kobo_l %>% filter(colname == "form_v" & value == 4L)
+    kobo_l_v5 <- kobo_l %>% filter(colname == "form_v" & value == 5L)
+
+    canonique_v4 <- process_kobo_canonised(kobo_l_v4, corresp_v4, cor_canonique)
+    canonique_v5 <- process_kobo_canonised(kobo_l_v5, corresp_v5, cor_canonique)
+    res_forms_v4 <- calculs_particuliers(canonique_v4, 4L)
+    res_forms_v5 <- calculs_particuliers(canonique_v5, 5L)
+    res_forms <- bind_rows(res_forms_v4, res_forms_v5)
   }
-  res_forms <- calculs_particuliers(canonique, version) # genre la surface ellipsoidale...
 
   message("### Compilation des traitements")
   compil <- bind_rows(res_forms, res_geom) %>%
@@ -81,7 +109,7 @@ process_all <- function(df, version = 5, departement = NULL,
   res_sf <- left_join(res_reseaux, note_simple_long, by = "X_index") %>%
     calcul_mediane_iecmar_reseaux()
 
-  res_sf_enhanced <- left_join(res_sf, df_existe %>%
+  res_sf_enhanced <-  left_join(res_sf, df_existe %>%
                                           select(X_index, photographie_URL) %>%
                                           st_drop_geometry(),
                                by = "X_index")
