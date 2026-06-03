@@ -1,7 +1,7 @@
 Package: marecoPckg
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: c(
     person(
       "Titouan", "LECLERC",
@@ -20,5 +20,5 @@ Imports:
     rmapshaper,
     tidyr
 Depends: 
-    R (>= 3.5)
-RoxygenNote: 7.3.2
+    R (>= 4.5)
+Config/roxygen2/version: 8.0.0
