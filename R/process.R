@@ -466,6 +466,17 @@ build_outputs <- function(
            rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
            # Variables calculees automatique pour IECMAr
            Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
+    ) %>%
+    # Repare la sortie car sinon il y a des list dans les colonnes
+    mutate(
+      across(
+        where(is.list),
+        ~ if (all(lengths(.x) == 1)) {
+            type.convert(unlist(.x), as.is = TRUE)
+          } else {
+            purrr::map_chr(.x, ~ paste(.x, collapse = ";"))
+          }
+      )
     )
 
   list(
