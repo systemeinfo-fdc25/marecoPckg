@@ -456,7 +456,7 @@ build_outputs <- function(
     left_join(iecmar_for_wide_output, by = "X_uuid") %>%
     left_join(new_origine_for_wide_output, by = "X_uuid") %>%
     select(# Donnees generales
-           X_uuid, id_cen, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time, form_v,
+           X_uuid, id_cen, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time, form_v, photographie_URL,
            # IECMAr
            note, median_iecmar_reseau, position_mediane,
            # Notes des criteres IECMAr
@@ -466,24 +466,31 @@ build_outputs <- function(
            rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
            # Variables calculees automatique pour IECMAr
            Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
-    ) %>%
-    # Repare la sortie car sinon il y a des list dans les colonnes
-    mutate(
-      across(
-        where(is.list),
-        ~ if (all(lengths(.x) == 1)) {
-            type.convert(unlist(.x), as.is = TRUE)
-          } else {
-            purrr::map_chr(.x, ~ paste(.x, collapse = ";"))
-          }
-      )
     )
+
+    # Repare la sortie car sinon il y a des list dans les colonnes (tout en gardans la col sf)
+    geom_col <- attr(table_out, "sf_column")
+    table_sf_out <- table_out %>%
+      mutate(
+        across(
+          -all_of(geom_col),
+          ~ if (is.list(.x)) {
+              if (all(lengths(.x) == 1)) {
+                type.convert(unlist(.x), as.is = TRUE)
+              } else {
+                purrr::map_chr(.x, ~ paste(.x, collapse = ";"))
+              }
+            } else {
+              .x
+            }
+        )
+      )
 
   list(
     resultat = res_sf,
     resultat_photo = res_sf_enhanced,
     notes_details = notes_detail,
     reseaux = reseaux,
-    big_table = table_out
+    big_table = table_sf_out
   )
 }
