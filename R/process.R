@@ -95,8 +95,7 @@ process_all <- function(
     res_reseaux = reseaux_res$res_reseaux,
     cor_uuid_form_v = prep$cor_uuid_form_v,
     df_existe = prep$df_all_v,
-    reseaux = reseaux_res$reseaux,
-    multiple_form_v = prep$multiple_form_v
+    reseaux = reseaux_res$reseaux
   )
 }
 
@@ -419,8 +418,7 @@ build_outputs <- function(
     res_reseaux,
     cor_uuid_form_v,
     df_existe,
-    reseaux,
-    multiple_form_v
+    reseaux
 ) {
 
   message("### Calcul IECMAR")
@@ -438,10 +436,66 @@ build_outputs <- function(
                                           st_drop_geometry(),
                          by = "X_uuid")
 
+  #### Build big output
+    new_origine_for_wide_output <- notes_detail %>%
+    select(X_uuid, CAN_name, CAN_choice) %>%
+    tidyr::pivot_wider(names_from = "CAN_name",
+                       values_from = "CAN_choice")
+
+  iecmar_for_wide_output <- notes_detail %>%
+    select(X_uuid, critere_label, points) %>%
+    filter(!is.na(critere_label)) %>%
+    tidyr::pivot_wider(names_from = "critere_label",
+                       values_from = "points")
+
+  summary_for_wide_output <- res_sf %>%
+    select(X_uuid, id_reseau, nb_mares_reseau, reseau_valide, note, median_iecmar_reseau, position_mediane)
+
+
+  table_out <- summary_for_wide_output %>%
+    left_join(iecmar_for_wide_output, by = "X_uuid") %>%
+    left_join(new_origine_for_wide_output, by = "X_uuid") %>%
+    select(# Donnees generales
+           X_uuid, id_cen, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time, form_v,
+           # IECMAr
+           note, median_iecmar_reseau, position_mediane,
+           # Notes des criteres IECMAr
+           8:24,
+           # Variables renseignees Kobo
+           type_mare, mare_superficie, profondeur_max, turbidite, fond_mare, berges_pentes_douce, rec_helophytes,
+           rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
+           # Variables calculees automatique pour IECMAr
+           Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
+    )
+
+
   list(
     resultat = res_sf,
     resultat_photo = res_sf_enhanced,
     notes_details = notes_detail,
-    reseaux = reseaux
+    reseaux = reseaux,
+    big_table = table_out
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
