@@ -159,16 +159,13 @@ build_gpkg_name <- function(version,
 #' @param version Integer. Processing version used in `process_all()`.
 #' @param departement Integer or character. Department identifier.
 #' @param prefix Character. File name prefix. Default is `"resultats"`.
-#' @param dir Character. Output directory path. Default is `"./output"`.
 #'
-#' @return Character string. Full path to the generated GeoPackage file.
+#' @return Character string. Generated GeoPackage filename.
 #'
 #' @export
 build_gpkg_name2 <- function(version,
                             departement,
-                            prefix = "resultats",
-                            dir = "./output") {
-
+                            prefix = "resultats") {
   file_name <- paste0(
     prefix, "_",
     "dep", departement, "_",
@@ -176,6 +173,4 @@ build_gpkg_name2 <- function(version,
     format(Sys.time(), "%Y%m%d_%H%M%S"),
     ".gpkg"
   )
-
-  file.path(dir, file_name)
 }
