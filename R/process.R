@@ -466,9 +466,7 @@ build_outputs <- function(
            rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
            # Variables calculees automatique pour IECMAr
            Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
-    ) %>%
-    mutate(v_marecoPckg = as.character(packageVersion("marecoPckg")))
-
+    )
 
   list(
     resultat = res_sf,
