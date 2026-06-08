@@ -229,6 +229,18 @@ prepare_input_data <- function(
       mutate(form_v = version)
   }
 
+  # gestion du cas ou la colonne id_cen existe pas et seul id_mare_cen existe
+  if ("id_mare_cen" %in% names(df_all_v)) {
+    df_all_v <- df_all_v %>%
+      mutate(
+        id_cen = if ("id_cen" %in% names(.))
+          coalesce(id_cen, id_mare_cen)
+        else
+          id_mare_cen
+      ) %>%
+      select(-any_of("id_mare_cen"))
+  }
+
   list(
     df_all_v = df_all_v,
     df_existe = df_existe,
@@ -451,22 +463,39 @@ build_outputs <- function(
   summary_for_wide_output <- res_sf %>%
     select(X_uuid, id_reseau, nb_mares_reseau, reseau_valide, note, median_iecmar_reseau, position_mediane)
 
+  lookup <- c(id_cen = "id_mare_cen")
 
   table_out <- summary_for_wide_output %>%
     left_join(iecmar_for_wide_output, by = "X_uuid") %>%
     left_join(new_origine_for_wide_output, by = "X_uuid") %>%
-    select(# Donnees generales
-           X_uuid, id_cen, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time, form_v, photographie_URL,
+    select(any_of(c(
+           # Donnees generales
+           "X_uuid", "id_cen", "id_mare_cen", "id_mare_fdc", "id_reseau", "nb_mares_reseau", "reseau_valide", "X_submission_time",
+           "form_v", "photographie_URL",
            # IECMAr
-           note, median_iecmar_reseau, position_mediane,
-           # Notes des criteres IECMAr
+           "note", "median_iecmar_reseau", "position_mediane")),
+           # # Notes des criteres IECMAr
            8:24,
            # Variables renseignees Kobo
-           type_mare, mare_superficie, profondeur_max, turbidite, fond_mare, berges_pentes_douce, rec_helophytes,
-           rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
+           any_of(c(
+           "type_mare", "mare_superficie", "profondeur_max", "turbidite", "fond_mare", "berges_pentes_douce", "rec_helophytes",
+           "rec_hydrophytes", "corridor_lineaire_5m", "presence_poissons", "dechets", "quantite_dechets", "mesures_protection",
            # Variables calculees automatique pour IECMAr
-           Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
-    )
+           "Distance_eau", "nb_piece_eau", "site_hiver", "zone_ecrasement"
+    )))
+    # select(# Donnees generales
+    #        X_uuid, id_cen, id_mare_fdc, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time,
+    #        form_v, photographie_URL,
+    #        # IECMAr
+    #        note, median_iecmar_reseau, position_mediane,
+    #        # Notes des criteres IECMAr
+    #        8:24,
+    #        # Variables renseignees Kobo
+    #        type_mare, mare_superficie, profondeur_max, turbidite, fond_mare, berges_pentes_douce, rec_helophytes,
+    #        rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
+    #        # Variables calculees automatique pour IECMAr
+    #        Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
+    # )
 
     # Repare la sortie car sinon il y a des list dans les colonnes (tout en gardans la col sf)
     geom_col <- attr(table_out, "sf_column")
@@ -476,7 +505,7 @@ build_outputs <- function(
           -all_of(geom_col),
           ~ if (is.list(.x)) {
               if (all(lengths(.x) == 1)) {
-                type.convert(unlist(.x), as.is = TRUE)
+                as.character(unlist(.x), as.is = TRUE)
               } else {
                 purrr::map_chr(.x, ~ paste(.x, collapse = ";"))
               }
