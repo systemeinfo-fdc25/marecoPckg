@@ -465,6 +465,8 @@ build_outputs <- function(
 
   lookup <- c(id_cen = "id_mare_cen")
 
+
+
   table_out <- summary_for_wide_output %>%
     left_join(iecmar_for_wide_output, by = "X_uuid") %>%
     left_join(new_origine_for_wide_output, by = "X_uuid") %>%
@@ -475,7 +477,7 @@ build_outputs <- function(
            # IECMAr
            "note", "median_iecmar_reseau", "position_mediane")),
            # # Notes des criteres IECMAr
-           8:24,
+           8:25,
            # Variables renseignees Kobo
            any_of(c(
            "type_mare", "mare_superficie", "profondeur_max", "turbidite", "fond_mare", "berges_pentes_douce", "rec_helophytes",
