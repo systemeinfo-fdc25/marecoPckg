@@ -1,7 +1,7 @@
 Package: marecoPckg
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.6.7
+Version: 0.6.8
 Authors@R: c(
     person(
       "Titouan", "LECLERC",

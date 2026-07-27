@@ -445,7 +445,7 @@ build_outputs <- function(
     mutate(form_v = as.integer(form_v))
 
   res_sf_enhanced <-  left_join(res_sf, df_existe %>%
-                                          select(X_uuid, photographie_URL) %>%
+                                          select(X_uuid, photographie_URL, id_cen, id_mare_fdc) %>%
                                           st_drop_geometry(),
                          by = "X_uuid")
 
