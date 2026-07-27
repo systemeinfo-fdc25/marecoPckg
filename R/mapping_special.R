@@ -56,7 +56,8 @@ calculs_helophytes <- function(cano) {
                 value <= 50 & value > 0  ~ "20", # clairsemé si < 50%
                 value == 0               ~ "21") # absent si 0
     )) %>%
-    mutate(value = as.character(value))
+    mutate(value = as.character(value)) %>%
+    mutate(CAN_choice = value)
 
   res <- cano %>%
     filter((id_can != 210) | is.na(id_can)) %>%
