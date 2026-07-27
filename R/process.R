@@ -396,6 +396,7 @@ compile_iecmar_inputs <- function(
   message("### Compilation IECMAR")
 
   bind_rows(res_forms, res_geom) %>%
+    mutate(CAN_choice = ifelse(CAN_choice == "" & !is.na(value), NA, CAN_choice)) %>%
     mutate(
       CAN_name = coalesce(CAN_name, colname),
       CAN_choice = coalesce(CAN_choice, value)
