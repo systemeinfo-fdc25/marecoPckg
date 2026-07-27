@@ -481,10 +481,13 @@ build_outputs <- function(
            # Variables renseignees Kobo
            any_of(c(
            "type_mare", "mare_superficie", "profondeur_max", "turbidite", "fond_mare", "berges_pentes_douce", "rec_helophytes",
-           "rec_hydrophytes", "corridor_lineaire_5m", "presence_poissons", "dechets", "quantite_dechets", "mesures_protection",
+           "rec_hydrophytes", "corridor_5m","corridor_lineaire_5m", "presence_poissons", "dechets", "quantite_dechets", "mesures_protection",
            # Variables calculees automatique pour IECMAr
            "Distance_eau", "nb_piece_eau", "site_hiver", "zone_ecrasement"
-    )))
+    ))) %>%
+    # Correction des noms de colonnes qui differes entre v4 et v5
+    mutate(corridor_lineaire_5m = ifelse(is.na(corridor_5m), corridor_lineaire_5m, corridor_5m)) %>%
+    select(-corridor_5m)
     # select(# Donnees generales
     #        X_uuid, id_cen, id_mare_fdc, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time,
     #        form_v, photographie_URL,
