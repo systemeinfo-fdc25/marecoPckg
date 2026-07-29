@@ -4,14 +4,7 @@
 \alias{build_outputs}
 \title{Construction des sorties IECMAR}
 \usage{
-build_outputs(
-  compil,
-  res_reseaux,
-  cor_uuid_form_v,
-  df_existe,
-  reseaux,
-  multiple_form_v
-)
+build_outputs(compil, res_reseaux, cor_uuid_form_v, df_existe, reseaux)
 }
 \arguments{
 \item{compil}{Tableau compilé des variables IECMAR.}

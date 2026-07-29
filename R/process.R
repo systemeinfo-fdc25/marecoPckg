@@ -189,6 +189,7 @@ validate_inputs <- function(
 #'
 #' @importFrom dplyr bind_rows filter mutate select
 #' @importFrom sf st_drop_geometry
+#' @importFrom lubridate parse_date_time
 #'
 #' @keywords internal
 prepare_input_data <- function(
@@ -241,12 +242,53 @@ prepare_input_data <- function(
       select(-any_of("id_mare_cen"))
   }
 
+  # Garde seulement la donnee la plus recente si passage multiple
+  # homogenise les formats de dates (difference v4 & v5 probablement)
+  df_all_v_unique <- df_all_v %>%
+    mutate(X_submission_time = parse_date_time(
+      X_submission_time,
+      orders = c("dmY HM", "Ymd HMS")
+    )) %>%
+  # tri pour garder le plus recent
+  # Et garde seulement le plus recent si doublons
+    dedup_latest(id_cen) %>%
+    dedup_latest(id_mare_fdc) %>%
+    dedup_latest(geometry)
+
+
   list(
-    df_all_v = df_all_v,
+    df_all_v = df_all_v_unique,
     df_existe = df_existe,
     cor_uuid_form_v = cor_uuid_form_v,
     multiple_form_v = multiple_form_v
   )
+}
+
+#' Garde uniquement l'observation la plus récente pour une colonne donnée
+#'
+#' Les valeurs manquantes (`NA`) sont ignorées lors de la déduplication et
+#' sont donc toutes conservées. Pour les valeurs non manquantes, seule la
+#' première observation est conservée après tri du jeu de données.
+#'
+#' @param data Un data.frame ou tibble.
+#' @param col Colonne utilisée pour identifier les doublons.
+#'
+#' @importFrom dplyr filter bind_rows distinct arrange desc
+#'
+#' @return Un tibble dédupliqué sur la colonne spécifiée.
+dedup_latest <- function(data, col) {
+
+  # Equivalent de group_by(grp) %>% slice(1) mais gere correctement les NA
+
+  col <- ensym(col)
+
+  bind_rows(
+    filter(data, is.na(!!col)),
+    filter(data, !is.na(!!col)) %>%
+      arrange(desc(X_submission_time)) %>%
+      distinct(!!col, .keep_all = TRUE)
+  )
+
 }
 
 #' Calcul des réseaux de mares

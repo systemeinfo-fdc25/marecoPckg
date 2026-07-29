@@ -18,7 +18,8 @@ Imports:
     sf,
     units,
     rmapshaper,
-    tidyr
+    tidyr,
+    lubridate
 Depends: 
     R (>= 4.5)
 Config/roxygen2/version: 8.0.0

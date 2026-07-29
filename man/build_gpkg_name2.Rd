@@ -4,7 +4,7 @@
 \alias{build_gpkg_name2}
 \title{Build GeoPackage filename from processing parameters with date/time}
 \usage{
-build_gpkg_name2(version, departement, prefix = "resultats", dir = "./output")
+build_gpkg_name2(version, departement, prefix = "resultats")
 }
 \arguments{
 \item{version}{Integer. Processing version used in `process_all()`.}
@@ -12,11 +12,9 @@ build_gpkg_name2(version, departement, prefix = "resultats", dir = "./output")
 \item{departement}{Integer or character. Department identifier.}
 
 \item{prefix}{Character. File name prefix. Default is `"resultats"`.}
-
-\item{dir}{Character. Output directory path. Default is `"./output"`.}
 }
 \value{
-Character string. Full path to the generated GeoPackage file.
+Character string. Generated GeoPackage filename.
 }
 \description{
 Build GeoPackage filename from processing parameters with date/time
