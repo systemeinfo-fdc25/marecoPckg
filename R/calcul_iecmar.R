@@ -6,19 +6,37 @@
 #' puis calcule une note brute et une note pondérée sur 20 par individu (`X_uuid`).
 #'
 #' @param df Un data.frame contenant au minimum les colonnes `X_uuid` et `cor_iecmar`.
+#' @param version_output version du calcul de sortie (regular = IECMAr, light = 7 critères seulement).
 #'
 #' @return Un data.frame enrichi avec les colonnes `points`, `n` et`note`.
 #'
 #' @importFrom dplyr mutate left_join group_by
 #'
-calcul_iecmar <- function(df) {
+calcul_iecmar <- function(df, version_output) {
+
+  # Choisi le systeme de notation
+  if (version_output == "regular") {
+    iecmar <- iecmar_raw %>%
+      select(id_iecmar, critere,
+             points_regular, # valeur à changer
+             critere_label, seuil_label, seuil_abr, type_evaluation) %>%
+      rename(points = points_regular)
+  } else if (version_output == "light") {
+    iecmar <- iecmar_raw %>%
+      select(id_iecmar, critere,
+             points_light, # valeur à changer
+             critere_label, seuil_label, seuil_abr, type_evaluation) %>%
+      rename(points = points_light)
+  }
+
   df_with_pts <- df %>%
-    mutate(cor_iecmar = as.integer(cor_iecmar)) %>%
-    left_join(iecmar, by = c("cor_iecmar" = "id_iecmar"))
+      mutate(cor_iecmar = as.integer(cor_iecmar)) %>%
+      left_join(iecmar, by = c("cor_iecmar" = "id_iecmar"))
+
 
   res <- ajustements_doublons(df_with_pts) %>%
     group_by(X_uuid) %>%
-    mutate(n_critere = sum(!is.na(cor_iecmar)),
+    mutate(n_critere = sum(!is.na(cor_iecmar) & !is.na(points)),
            note = sum(points, na.rm = T))
 
   return(res)

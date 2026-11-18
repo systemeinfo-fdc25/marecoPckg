@@ -4,10 +4,12 @@
 \alias{calcul_iecmar}
 \title{Calcul des scores IECMAR}
 \usage{
-calcul_iecmar(df)
+calcul_iecmar(df, version_output)
 }
 \arguments{
 \item{df}{Un data.frame contenant au minimum les colonnes `X_uuid` et `cor_iecmar`.}
+
+\item{version_output}{version du calcul de sortie (regular = IECMAr, light = 7 critères seulement).}
 }
 \value{
 Un data.frame enrichi avec les colonnes `points`, `n` et`note`.

@@ -11,10 +11,10 @@ corresp_v5 <- read.csv2("./data-raw/mapping/mapping_form_v5.csv") %>%
 
 cor_canonique <- load_cannonique("./data-raw/mapping/canonnique.csv")
 
-iecmar <- read.csv2("./data-raw/mapping/referentiel_iecmar.csv", fileEncoding = "UTF-8-BOM")
+iecmar_raw <- read.csv2("./data-raw/mapping/referentiel_iecmar.csv", fileEncoding = "UTF-8-BOM")
 
 
 usethis::use_data(corresp_v4, overwrite = TRUE)
 usethis::use_data(corresp_v5, overwrite = TRUE)
 usethis::use_data(cor_canonique, overwrite = TRUE)
-usethis::use_data(iecmar, overwrite = TRUE)
+usethis::use_data(iecmar_raw, overwrite = TRUE)

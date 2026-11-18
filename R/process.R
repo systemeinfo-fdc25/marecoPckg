@@ -7,6 +7,7 @@
 #'
 #' @param df Objet sf contenant les données de mares.
 #' @param version Version du formulaire Kobo utilisée (4L ou 5L).
+#' @param version_output Version du calcul de sortie (regular = IECMAr, light = 7 critères seulement).
 #' @param departement Code du département utilisé pour sélectionner
 #' les couches géographiques nécessaires aux traitements.
 #' @param use_OS_for_reseaux Booléen indiquant si l'occupation du sol
@@ -31,6 +32,7 @@
 process_all <- function(
   df,
   version = 5L,
+  version_output = c("regular", "light"),
   departement,
   use_OS_for_reseaux = TRUE,
   use_RD_for_reseaux = FALSE,
@@ -95,7 +97,8 @@ process_all <- function(
     res_reseaux = reseaux_res$res_reseaux,
     cor_uuid_form_v = prep$cor_uuid_form_v,
     df_existe = prep$df_all_v,
-    reseaux = reseaux_res$reseaux
+    reseaux = reseaux_res$reseaux,
+    version_output = version_output
   )
 }
 
@@ -461,6 +464,7 @@ compile_iecmar_inputs <- function(
 #' @param cor_uuid_form_v Correspondance entre identifiants et versions de formulaire.
 #' @param df_existe Jeu de données filtré sur les mares existantes.
 #' @param reseaux Réseaux calculés.
+# '@param version_output version du calcul de sortie (regular = IECMAr, light = 7 critères seulement).
 #'
 #' @return Une liste contenant les différents objets de sortie IECMAR.
 #'
@@ -473,12 +477,13 @@ build_outputs <- function(
     res_reseaux,
     cor_uuid_form_v,
     df_existe,
-    reseaux
+    reseaux,
+    version_output
 ) {
 
   message("### Calcul IECMAR")
 
-  notes_detail <- calcul_iecmar(compil)
+  notes_detail <- calcul_iecmar(compil, version_output)
   note_simple_long <- output_note_only_l(notes_detail)
 
   res_sf <- left_join(res_reseaux, note_simple_long, by = "X_uuid") %>%
@@ -531,19 +536,6 @@ build_outputs <- function(
     # Correction des noms de colonnes qui differes entre v4 et v5
     mutate(corridor_lineaire_5m = ifelse(is.na(corridor_5m), corridor_lineaire_5m, corridor_5m)) %>%
     select(-corridor_5m)
-    # select(# Donnees generales
-    #        X_uuid, id_cen, id_mare_fdc, id_reseau, nb_mares_reseau, reseau_valide, X_submission_time,
-    #        form_v, photographie_URL,
-    #        # IECMAr
-    #        note, median_iecmar_reseau, position_mediane,
-    #        # Notes des criteres IECMAr
-    #        8:24,
-    #        # Variables renseignees Kobo
-    #        type_mare, mare_superficie, profondeur_max, turbidite, fond_mare, berges_pentes_douce, rec_helophytes,
-    #        rec_hydrophytes, corridor_lineaire_5m, presence_poissons, dechets, quantite_dechets, mesures_protection,
-    #        # Variables calculees automatique pour IECMAr
-    #        Distance_eau, nb_piece_eau, site_hiver, zone_ecrasement
-    # )
 
     # Repare la sortie car sinon il y a des list dans les colonnes (tout en gardans la col sf)
     geom_col <- attr(table_out, "sf_column")

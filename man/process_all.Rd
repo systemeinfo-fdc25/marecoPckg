@@ -7,6 +7,7 @@
 process_all(
   df,
   version = 5L,
+  version_output = c("regular", "light"),
   departement,
   use_OS_for_reseaux = TRUE,
   use_RD_for_reseaux = FALSE,
@@ -19,6 +20,8 @@ process_all(
 \item{df}{Objet sf contenant les données de mares.}
 
 \item{version}{Version du formulaire Kobo utilisée (4L ou 5L).}
+
+\item{version_output}{Version du calcul de sortie (regular = IECMAr, light = 7 critères seulement).}
 
 \item{departement}{Code du département utilisé pour sélectionner
 les couches géographiques nécessaires aux traitements.}
